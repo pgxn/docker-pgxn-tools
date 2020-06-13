@@ -10,4 +10,4 @@ PGVERSION=$1
 apt-get update
 packages="postgresql-$PGVERSION postgresql-server-dev-$PGVERSION postgresql-common"
 apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y $packages "${@:2}"
-pg_createcluster --start $PGVERSION test -- -A trust
+pg_createcluster --start $PGVERSION test -p 5432 -- -A trust

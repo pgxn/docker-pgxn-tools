@@ -24,11 +24,27 @@ GitHub Workflow
 Here's a sample [GithHub Workflow]:
 
 ``` yaml
-
+name: CI
+on: [push]
+jobs:
+  build:
+    strategy:
+      matrix:
+        pg: [12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2]
+    name: 🐘 PostgreSQL ${{ matrix.pg }}
+    runs-on: ubuntu-latest
+    container:
+      image: pgxn/pgxn-tools
+    steps:
+      - run: pg-start ${{ matrix.pg }}
+      - uses: actions/checkout@v2
+      - run: pg-build-test
 ```
+
 
 [`pgxn`]: https://github.com/pgxn/pgxnclient
 [`pg-start`]: bin/pg-start
 [`pg-build-test`]: bin/pg-build-test
 [PostgreSQL Apt]: https://wiki.postgresql.org/wiki/Apt
 [back to 8.4]: http://apt.postgresql.org/pub/repos/apt/dists/buster-pgdg/
+[GithHub Workflow]: https://help.github.com/en/actions/configuring-and-managing-workflows
