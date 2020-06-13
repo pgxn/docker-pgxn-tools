@@ -4,6 +4,9 @@
 
 set -eux
 
+# Determine the version of PostgreSQL.
+PGVERSION=$1
+
 apt-get update
 packages="postgresql-$PGVERSION postgresql-server-dev-$PGVERSION postgresql-common postgresql-$PGVERSION-pgtap"
 apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y $packages
