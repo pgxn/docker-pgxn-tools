@@ -8,6 +8,6 @@ set -eux
 PGVERSION=$1
 
 apt-get update
-packages="postgresql-$PGVERSION postgresql-server-dev-$PGVERSION postgresql-common postgresql-$PGVERSION-pgtap"
-apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y $packages
-pg_createcluster --start $PGVERSION test -p 55435 -- -A trust
+packages="postgresql-$PGVERSION postgresql-server-dev-$PGVERSION postgresql-common"
+apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y $packages "${@:2}"
+pg_createcluster --start $PGVERSION test -- -A trust
