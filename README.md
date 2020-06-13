@@ -41,6 +41,52 @@ jobs:
       - run: pg-build-test
 ```
 
+Tools
+-----
+
+Some details on the tools:
+
+### [`pg-start`]
+
+``` sh
+pg-start 12
+pg-start 11 libsodium-dev
+```
+Installs the specified version of PostgreSQL from the [PostgreSQL Apt] community
+repository, as well as any additional Debian core or PostgreSQL packages passed
+as subsequent arguments. It then starts the cluster on port 5432 with the
+`en_US.UTF-8` locale and trust authentication enabled. If you need the cluster
+configured with a specific locale (for collation predictability, for example),
+set the `$LANG` environment variable before calling `pg-start`.
+
+### [`pg-build-test`]
+
+``` sh
+pg-build-test
+```
+
+Simply builds, installs, and tests a PostgreSQL extension or other code in the
+current directory. Effectively the equivalent of:
+
+``` sh
+make
+make install
+make installcheck
+```
+
+But a bit more, to ensure that the tests run as the `postgres` user, and if
+tests fail to emit the contents of the `regression.diffs` file. Designed to
+cover the most common PostgreSQL extension continuous integration needs.
+
+### [`pgxn`]
+
+``` sh
+pgxn install hostname
+```
+
+The PGXN Client enables the installation of additional dependencies, should you
+need them, from PGXN. You'd generally want to use it to install dependencies
+before building and running tests.
 
 [`pgxn`]: https://github.com/pgxn/pgxnclient
 [`pg-start`]: bin/pg-start

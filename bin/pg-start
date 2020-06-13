@@ -6,6 +6,7 @@ set -eux
 
 # Determine the version of PostgreSQL.
 PGVERSION=$1
+export LANG=${LANG:=en_US.UTF-8}
 
 apt-get update
 packages="postgresql-$PGVERSION postgresql-server-dev-$PGVERSION postgresql-common"
