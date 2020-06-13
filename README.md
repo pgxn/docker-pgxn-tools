@@ -18,6 +18,15 @@ The image is based on the Debian Buster Slim image, and uses the
 [PostgreSQL Apt] repository to install PostgreSQL, supporting versions
 [back to 8.4].
 
+GitHub Workflow
+---------------
+
+Here's a sample [GithHub Workflow]:
+
+``` yaml
+
+```
+
 [`pgxn`]: https://github.com/pgxn/pgxnclient
 [`pg-start`]: bin/pg-start
 [`pg-build-test`]: bin/pg-build-test

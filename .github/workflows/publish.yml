@@ -16,3 +16,5 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: pgxn/pgxn-tools
           tag_with_ref: true
+          tags:
+            - latest
