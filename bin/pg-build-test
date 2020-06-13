@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Based on https://gist.github.com/petere/6023944
+
+set -eux
+
+make all PG_CONFIG=/usr/lib/postgresql/$PGVERSION/bin/pg_config
+make install PG_CONFIG=/usr/lib/postgresql/$PGVERSION/bin/pg_config
+status=0
+PGPORT=55435 make installcheck PGUSER=postgres PG_CONFIG=/usr/lib/postgresql/$PGVERSION/bin/pg_config || status=$?
+if test -f regression.diffs; then cat regression.diffs; fi
+exit $status

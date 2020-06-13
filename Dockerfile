@@ -7,7 +7,7 @@ RUN apt-get update \
     && rm -rf /var/cache/apt/* /var/lib/apt/lists/*
 #    && gem install pgxn_utils
 
-COPY bin/run-pg-test /usr/local/bin/
+COPY bin/* /usr/local/bin/
 
 ADD  https://www.postgresql.org/media/keys/ACCC4CF8.asc .
 RUN apt-key add ACCC4CF8.asc \
