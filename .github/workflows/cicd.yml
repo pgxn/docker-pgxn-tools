@@ -16,10 +16,10 @@ jobs:
       - run: docker build -t pgxn-tools-test .
       - run: "docker run --rm --mount \"type=bind,src=$(pwd)/test,dst=/repo\" pgxn-tools-test sh -c 'cd /repo && pg-start ${{ matrix.pg }} && pg-build-test'"
       - run: echo "${{ github.ref }}"
-      - name: Prints the current branch name
-        run: echo "Branch '${GITHUB_BRANCH}'"
+      - name: Prints the current event name
+        run: echo "EVENT '${EVENT_NAME}'"
         env:
-          GITHUB_BRANCH: ${{ github.ref }}
+          EVENT_NAME: ${{ github.event_name }}
   publish:
     name: Push Docker image to Docker Hub
     needs: test
