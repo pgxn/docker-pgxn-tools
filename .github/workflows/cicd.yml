@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: docker build -t pgxn-tools-test .
       - run: "docker run --rm --mount \"type=bind,src=$(pwd)/test,dst=/repo\" pgxn-tools-test sh -c 'cd /repo && pg-start ${{ matrix.pg }} && pg-build-test'"
-      - run: echo "${ {github.ref }}"
+      - run: echo "${{ github.ref }}"
       publish:
     name: Push Docker image to Docker Hub
     needs: test
