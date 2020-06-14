@@ -13,3 +13,4 @@ ADD  https://www.postgresql.org/media/keys/ACCC4CF8.asc .
 RUN apt-key add ACCC4CF8.asc \
     && rm ACCC4CF8.asc \
     && echo deb http://apt.postgresql.org/pub/repos/apt buster-pgdg main > /etc/apt/sources.list.d/pgdg.list
+ENV LC_ALL=C.UTF-8 LANG=C.UTF-8
