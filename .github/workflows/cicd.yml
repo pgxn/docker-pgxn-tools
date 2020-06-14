@@ -25,7 +25,7 @@ jobs:
       - name: Prints the status of the test
         run: echo "Test '${TEST_STATUS}'"
         env:
-          TEST_STATUS: ${{ needs.test.status }}
+          TEST_STATUS: ${{ toJson(needs.test) }}
       # - name: Check out the repo
       #   uses: actions/checkout@v2
       # - name: Build and Push to Docker Hub
