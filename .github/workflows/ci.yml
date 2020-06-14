@@ -11,5 +11,7 @@ jobs:
         pg: [12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4]
     steps:
       - uses: actions/checkout@v2
-      - uses: ./
-      - run: docker run -it --rm --mount "type=bind,src=$(pwd)/test,dst=/repo" pgxn-tools-test sh -c 'cd /repo && pg-start ${{ matrix.pg }} && pg-build-test'
+      - run: docker build -t pgxn-tools-test .
+      - uses: pgxn-tools-test
+        with:
+          entrypoint: sh -c 'cd /repo && pg-start ${{ matrix.pg }} && pg-build-test'
