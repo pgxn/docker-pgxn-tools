@@ -10,7 +10,7 @@ This project provides a simple Docker image to enable the automated testing
 of PGXN extensions against multiple versions of PostgreSQL. The image
 contains these utilities:
 
-*   [`pgxn`]: The PGXN command-line client
+*   [`pgxn`][cli]: The PGXN command-line client
 *   [`pg-start`] Pass a PostgreSQL major version to install and starts a PostgreSQL cluster
 *   [`pg-build-test`]: Builds and tests an extension in the current directory
 
@@ -77,21 +77,46 @@ make installcheck
 
 But a bit more, to ensure that the tests run as the `postgres` user, and if
 tests fail to emit the contents of the `regression.diffs` file. Designed to
-cover the most common PostgreSQL extension continuous integration needs.
+cover the most common PostgreSQL extension build-and-test patterns.
 
-### [`pgxn`]
+### [`pgxn`][cli]
 
 ``` sh
 pgxn install hostname
 ```
 
-The PGXN Client enables the installation of additional dependencies, should you
-need them, from PGXN. You'd generally want to use it to install dependencies
-before building and running tests.
+The [PGXN client][cli] provides an interface to extensions distributed on
+[PGXN]. Use it to install of additional dependencies, should you need them, from
+[PGXN]. You'd generally want to use it to install dependencies before building and
+running tests, for example:
 
-[`pgxn`]: https://github.com/pgxn/pgxnclient
+``` sh
+pg-start 12
+pgxn install semver
+pg-build-test
+```
+
+Please refer to [the docs] for all the details.
+
+Author
+------
+
+[David E. Wheeler]
+
+Copyright and License
+---------------------
+
+Copyright (c) 2020 The PGXN Maintainers. Distributed under the [PostgreSQL License]
+(see [LICENSE]).
+
+[cli]: https://github.com/pgxn/pgxnclient
 [`pg-start`]: bin/pg-start
 [`pg-build-test`]: bin/pg-build-test
 [PostgreSQL Apt]: https://wiki.postgresql.org/wiki/Apt
 [back to 8.4]: http://apt.postgresql.org/pub/repos/apt/dists/buster-pgdg/
 [GithHub Workflow]: https://help.github.com/en/actions/configuring-and-managing-workflows
+[PGXN]: https;//pgxn.org/ "The PostgreSQL Extension Network"
+[David E. Wheeler]: https://justatheory.com/
+[PostgreSQL License]: https://opensource.org/licenses/PostgreSQL
+[LICENSE]: LICENSE
+[the docs]: https://pgxn.github.io/pgxnclient/
