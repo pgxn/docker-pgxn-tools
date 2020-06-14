@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pg: [12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4]
+        pg: [12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, '9.0', 8.4]
     steps:
       - uses: actions/checkout@v2
       - run: docker build -t pgxn-tools-test .
