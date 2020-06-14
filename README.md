@@ -32,7 +32,7 @@ jobs:
   build:
     strategy:
       matrix:
-        pg: [12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2]
+        pg: [12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4]
     name: 🐘 PostgreSQL ${{ matrix.pg }}
     runs-on: ubuntu-latest
     container:
