@@ -4,6 +4,8 @@ on:
     branches: ['*']
   pull_request:
     branches: ['*']
+  schedule:
+    - cron: '0 14 30 * *' # Monthly at 2pm on the 30th
 jobs:
   test:
     name: 🐘 PostgreSQL ${{ matrix.pg }}
@@ -18,9 +20,9 @@ jobs:
       - run: echo "${{ github.ref }}"
   publish:
     name: Push Docker image to Docker Hub
-    # Publish only pushes to main when the test job succeeds.
+    # Publish main when the test job succeeds and it's not a pull request.
     needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.test.result == 'success'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.test.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
