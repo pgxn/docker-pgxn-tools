@@ -6,12 +6,8 @@ set -eu
 PGVERSION=$1
 [[ $PGVERSION =~ ^[0-9]$ ]] && PGVERSION+=.0
 
-# Update config for Postgres 13.
-[[ $PGVERSION == '13' ]] && perl -i -pe 's/pgdg main/pgdg-testing main 13/' /etc/apt/sources.list.d/pgdg.list
-
 set -x
-
-apt-get update
+apt.postgresql.org.sh -p -v $PGVERSION
 packages="postgresql-$PGVERSION postgresql-server-dev-$PGVERSION postgresql-common"
 apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y $packages "${@:2}"
 pg_createcluster --start $PGVERSION test -p 5432 -- -A trust
