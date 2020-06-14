@@ -1,12 +1,15 @@
 #!/bin/bash
 
-# Based on https://gist.github.com/petere/6023944
-
-set -eux
+set -eu
 
 # Determine the version of PostgreSQL (and append .0 to a single digit)
 PGVERSION=$1
 [[ $PGVERSION =~ ^[0-9]$ ]] && PGVERSION+=.0
+
+# Update config for Postgres 13.
+[[ $PGVERSION == '13' ]] && perl -i -pe 's/pgdg main/pgdg-testing main 13/' /etc/apt/sources.list.d/pgdg.list
+
+set -x
 
 apt-get update
 packages="postgresql-$PGVERSION postgresql-server-dev-$PGVERSION postgresql-common"
