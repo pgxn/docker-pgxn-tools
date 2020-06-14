@@ -1,6 +1,8 @@
 PGXN Extension Build and Test Tools Docker Image
 ================================================
 
+[![Test & Release Status](https://github.com/pgxn/docker-pgxn-tools/workflows/CI/CD/badge.svg)](https://github.com/pgxn/docker-pgxn-tools/actions)
+
 ``` sh
 docker run -it --rm --mount "type=bind,src=$(pwd),dst=/repo" pgxn/pgxn-tools \
     sh -c 'cd /repo && pg-start 12 && pg-build-test'
