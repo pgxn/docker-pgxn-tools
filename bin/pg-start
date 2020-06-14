@@ -4,8 +4,9 @@
 
 set -eux
 
-# Determine the version of PostgreSQL.
+# Determine the version of PostgreSQL (and append .0 to a single digit)
 PGVERSION=$1
+[[ $PGVERSION =~ ^[0-9]$ ]] && PGVERSION+=.0
 
 apt-get update
 packages="postgresql-$PGVERSION postgresql-server-dev-$PGVERSION postgresql-common"
