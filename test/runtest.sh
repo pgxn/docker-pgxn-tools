@@ -9,7 +9,7 @@ pg-start $pgversion
 pg-build-test
 pgxn-bundle
 
-if [ !-e widget-1.0.0.zip ]; then
+if [ ! -e widget-1.0.0.zip ]; then
     echo 'ERROR:  No widget-1.0.0.zip file'
     ls -lah
     exit 2

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -eu
+
+# Get the extension name and version.
+DISTNAME=${PGXN_DIST_NAME:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{name}' META.json)}
+VERSION=${PGXN_DIST_VERSION:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{version}' META.json)}
+release=${DISTNAME}-${VERSION}
+
+# Make sure we have a zip file.
+if [ ! -e "${release}.zip" ]; then
+    echo "ERROR:  No ${release}.zip file"
+    echo 'DETAIL: We need a zip file to release on PGXN'
+    echo '        Did you forget to run pgxn-bundle, first?'
+    exit 2
+fi
+
+# Make sure we have credentials.
+if [ -z ${PGXN_USERNAME+x} ]; then
+    echo "ERROR: PGXN_USERNAME not set"
+    exit 1;
+fi
+
+if [ -z ${PGXN_PASSWORD+x} ]; then
+    echo "ERROR: PGXN_PASSWORD not set"
+    exit 1;
+fi
+
+# Release it!
+echo Releasing $release...
+status=$(curl --user "${PGXN_USERNAME}:${PGXN_PASSWORD}" -F 'submit=Release It!' -F "archive=@${release}.zip" -H 'X-Requested-With: XMLHttpRequest' --silent --output /dev/stderr --write-out "%{http_code}" https://manager.pgxn.org/upload)
+echo
+if test $status -ne 200; then
+    echo 'ERROR: Release failed'
+    exit 2
+fi
