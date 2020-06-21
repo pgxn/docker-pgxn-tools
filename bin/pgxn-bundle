@@ -20,5 +20,12 @@ VERSION=${PGXN_DIST_VERSION:-$(perl -MJSON=decode_json -E 'say decode_json(join 
 # Now bundle up the distribution for release.
 release=${DISTNAME}-${VERSION}
 echo "Bundling $release.zip..."
-git archive --format zip --prefix=${release}/ --output ${release} HEAD
+if [ true == "$(git rev-parse --is-inside-work-tree 2>/dev/null)" ]; then
+    git archive --format zip --prefix=${release}/ --output ${release} HEAD
+else
+    mkdir /tmp/$release
+    cp -rf . /tmp/$release
+    (cd /tmp && zip -r $release.zip $release)
+    mv /tmp/$release.zip .
+fi
 echo "::set-output name=time::$(pwd)/$release"
