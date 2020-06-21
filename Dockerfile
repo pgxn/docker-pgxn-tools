@@ -5,7 +5,7 @@ ADD https://salsa.debian.org/postgresql/postgresql-common/-/raw/master/pgdg/apt.
 
 RUN chmod +x /usr/local/bin/apt.postgresql.org.sh \
     && apt-get update \
-    && apt-get install -y --no-install-recommends build-essential pgxnclient ca-certificates gnupg2 \
+    && apt-get install -y --no-install-recommends build-essential pgxnclient ca-certificates gnupg2 zip curl git \
     && apt-get clean \
     && rm -rf /var/cache/apt/* /var/lib/apt/lists/*
 #    && gem install pgxn_utils
