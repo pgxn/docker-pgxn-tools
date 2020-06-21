@@ -147,16 +147,16 @@ Copyright and License
 Copyright (c) 2020 The PGXN Maintainers. Distributed under the [PostgreSQL License]
 (see [LICENSE]).
 
-[cli]: https://github.com/pgxn/pgxnclient
-[`pg-start`]: bin/pg-start
-[`pg-build-test`]: bin/pg-build-test
-[`pgxn-bundle`]: bin/pgxn-bundle
-[`pgxn-release`]: bin/pgxn-release
-[PostgreSQL Apt]: https://wiki.postgresql.org/wiki/Apt
-[back to 8.4]: http://apt.postgresql.org/pub/repos/apt/dists/buster-pgdg/
-[GithHub Workflow]: https://help.github.com/en/actions/configuring-and-managing-workflows
-[PGXN]: https;//pgxn.org/ "The PostgreSQL Extension Network"
-[David E. Wheeler]: https://justatheory.com/
-[PostgreSQL License]: https://opensource.org/licenses/PostgreSQL
-[LICENSE]: LICENSE
-[the docs]: https://pgxn.github.io/pgxnclient/
+  [cli]: https://github.com/pgxn/pgxnclient
+  [`pg-start`]: bin/pg-start
+  [`pg-build-test`]: bin/pg-build-test
+  [`pgxn-bundle`]: bin/pgxn-bundle
+  [`pgxn-release`]: bin/pgxn-release
+  [PostgreSQL Apt]: https://wiki.postgresql.org/wiki/Apt
+  [back to 8.4]: http://apt.postgresql.org/pub/repos/apt/dists/buster-pgdg/
+  [GithHub Workflow]: https://help.github.com/en/actions/configuring-and-managing-workflows
+  [PGXN]: https;//pgxn.org/ "The PostgreSQL Extension Network"
+  [David E. Wheeler]: https://justatheory.com/
+  [PostgreSQL License]: https://opensource.org/licenses/PostgreSQL
+  [LICENSE]: LICENSE
+  [the docs]: https://pgxn.github.io/pgxnclient/
