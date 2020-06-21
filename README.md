@@ -15,6 +15,7 @@ contains these utilities:
 *   [`pgxn`][cli]: The PGXN command-line client
 *   [`pg-start`] Pass a PostgreSQL major version to install and starts a PostgreSQL cluster
 *   [`pg-build-test`]: Builds and tests an extension in the current directory
+*   [`pgxn-bundle`]: Validates the PGXN META.json file and bundles up a release
 
 The image is based on the Debian Buster Slim image, and uses the
 [PostgreSQL Apt] repository to install PostgreSQL, supporting versions
@@ -82,6 +83,25 @@ But a bit more, to ensure that the tests run as the `postgres` user, and if
 tests fail to emit the contents of the `regression.diffs` file. Designed to
 cover the most common PostgreSQL extension build-and-test patterns.
 
+### [`pgxn-bundle`]
+
+``` sh
+pgxn-bundle
+PGXN_DIST_NAME=widget PGXN_DIST_VERSION=1.0.0 pgxn-bundle
+```
+
+Validates the PGXN `META.json` file and bundles up the repository for release
+to PGXN. It does so by archiving the Git repository like so:
+
+``` sh
+git archive --format zip --prefix=${PGXN_DIST_NAME}-${PGXN_DIST_VERSION}/ \
+            --output ${PGXN_DIST_NAME}-${PGXN_DIST_VERSION} HEAD
+```
+
+If the `$PGXN_DIST_NAME` or `$PGXN_DIST_VERSION` variable is not set, the extension
+name and version are read from the `META.json` file (indeed, this is preferred).
+The zip file will be at the root of the repository, ready for release.
+
 ### [`pgxn`][cli]
 
 ``` sh
@@ -115,6 +135,7 @@ Copyright (c) 2020 The PGXN Maintainers. Distributed under the [PostgreSQL Licen
 [cli]: https://github.com/pgxn/pgxnclient
 [`pg-start`]: bin/pg-start
 [`pg-build-test`]: bin/pg-build-test
+[`pgxn-bundle`]: bin/pgxn-bundle
 [PostgreSQL Apt]: https://wiki.postgresql.org/wiki/Apt
 [back to 8.4]: http://apt.postgresql.org/pub/repos/apt/dists/buster-pgdg/
 [GithHub Workflow]: https://help.github.com/en/actions/configuring-and-managing-workflows

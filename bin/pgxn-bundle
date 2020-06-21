@@ -17,7 +17,8 @@ fi
 DISTNAME=${PGXN_DIST_NAME:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{name}' META.json)}
 VERSION=${PGXN_DIST_VERSION:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{version}' META.json)}
 
-echo "Bundling $DISTNAME $VERSION..."
-
 # Now bundle up the distribution for release.
-env
+release=${DISTNAME}-${VERSION}
+echo "Bundling $release.zip..."
+git archive --format zip --prefix=${release}/ --output ${release} HEAD
+echo "::set-output name=time::$(pwd)/$release"
