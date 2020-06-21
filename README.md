@@ -29,7 +29,10 @@ Here's a sample [GithHub Workflow]:
 
 ``` yaml
 name: CI
-on: [push]
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
 jobs:
   build:
     strategy:
@@ -37,12 +40,32 @@ jobs:
         pg: [12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4]
     name: 🐘 PostgreSQL ${{ matrix.pg }}
     runs-on: ubuntu-latest
+    container: pgxn/pgxn-tools
+    steps:
+      - name: Start PostgreSQL ${{ matrix.pg }}
+        run: pg-start ${{ matrix.pg }}
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Test on PostgreSQL ${{ matrix.pg }}
+        run: pg-build-test
+  release:
+    name: Release on PGXN
+    # Release pon push to main when the test job succeeds.
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.test.result == 'success'
+    runs-on: ubuntu-latest
     container:
       image: pgxn/pgxn-tools
+      env:
+        PGXN_USERNAME: ${{ secrets.PGXN_USERNAME }}
+        PGXN_PASSWORD: ${{ secrets.PGXN_PASSWORD }}
     steps:
-      - run: pg-start ${{ matrix.pg }}
-      - uses: actions/checkout@v2
-      - run: pg-build-test
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Bundle the Release
+        run: pgxn-bundle
+      - name: Release on PGXN
+        run: pgxn-release
 ```
 
 Tools
@@ -115,7 +138,10 @@ pgxn-release widget-1.0.0.zip
 Uploads a release sip file to PGXN. The `$PGXN_USERNAME` and `$PGXN_PASSWORD`
 variables must be set. If no release file is passed, it will use the
 `$PGXN_DIST_NAME` or `$PGXN_DIST_VERSION` variables or read the `META.json`
-file, just like `pgxn-bundle does`.
+file, just like `pgxn-bundle` does. This assumes that you've properly updated
+your `META.json` file and any other files that need a version increment or
+timestamp to mark release. This might be most useful in a "release" CI/CD
+event, or for a main branch reserved for released code.
 
 ### [`pgxn`][cli]
 
