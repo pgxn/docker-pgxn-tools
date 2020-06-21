@@ -2,14 +2,19 @@
 
 set -eu
 
-# Get the extension name and version.
-DISTNAME=${PGXN_DIST_NAME:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{name}' META.json)}
-VERSION=${PGXN_DIST_VERSION:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{version}' META.json)}
-release=${DISTNAME}-${VERSION}
+# Determinee the release file name.
+if [ -z ${1+x} ]; then
+    # Get the extension name and version and assemble the releasee file name.
+    DISTNAME=${PGXN_DIST_NAME:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{name}' META.json)}
+    VERSION=${PGXN_DIST_VERSION:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{version}' META.json)}
+    zipfile=${DISTNAME}-${VERSION}.zip
+else
+    zipfile=$1
+fi
 
 # Make sure we have a zip file.
-if [ ! -e "${release}.zip" ]; then
-    echo "ERROR:  No ${release}.zip file"
+if [ ! -e "${zipfile}" ]; then
+    echo "ERROR:  No ${zipfile} file"
     echo 'DETAIL: We need a zip file to release on PGXN'
     echo '        Did you forget to run pgxn-bundle, first?'
     exit 2
@@ -27,8 +32,8 @@ if [ -z ${PGXN_PASSWORD+x} ]; then
 fi
 
 # Release it!
-echo Releasing $release...
-status=$(curl --user "${PGXN_USERNAME}:${PGXN_PASSWORD}" -F 'submit=Release It!' -F "archive=@${release}.zip" -H 'X-Requested-With: XMLHttpRequest' --silent --output /dev/stderr --write-out "%{http_code}" https://manager.pgxn.org/upload)
+echo Releasing $zipfile...
+status=$(curl --user "${PGXN_USERNAME}:${PGXN_PASSWORD}" -F 'submit=Release It!' -F "archive=@${zipfile}" -H 'X-Requested-With: XMLHttpRequest' --silent --output /dev/stderr --write-out "%{http_code}" https://manager.pgxn.org/upload)
 echo
 if test $status -ne 200; then
     echo 'ERROR: Release failed'

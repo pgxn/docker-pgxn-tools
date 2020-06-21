@@ -16,6 +16,7 @@ contains these utilities:
 *   [`pg-start`] Pass a PostgreSQL major version to install and starts a PostgreSQL cluster
 *   [`pg-build-test`]: Builds and tests an extension in the current directory
 *   [`pgxn-bundle`]: Validates the PGXN META.json file and bundles up a release
+*   [`pgxn-release`]: Release to PGXN
 
 The image is based on the Debian Buster Slim image, and uses the
 [PostgreSQL Apt] repository to install PostgreSQL, supporting versions
@@ -102,6 +103,20 @@ If the `$PGXN_DIST_NAME` or `$PGXN_DIST_VERSION` variable is not set, the extens
 name and version are read from the `META.json` file (indeed, this is preferred).
 The zip file will be at the root of the repository, ready for release.
 
+### [`pgxn-release`]
+
+``` sh
+export PGXN_USERNAME=susan
+export PGXN_PASSWORD='s00per&ecret'
+pgxn-release
+pgxn-release widget-1.0.0.zip
+```
+
+Uploads a release sip file to PGXN. The `$PGXN_USERNAME` and `$PGXN_PASSWORD`
+variables must be set. If no release file is passed, it will use the
+`$PGXN_DIST_NAME` or `$PGXN_DIST_VERSION` variables or read the `META.json`
+file, just like `pgxn-bundle does`.
+
 ### [`pgxn`][cli]
 
 ``` sh
@@ -136,6 +151,7 @@ Copyright (c) 2020 The PGXN Maintainers. Distributed under the [PostgreSQL Licen
 [`pg-start`]: bin/pg-start
 [`pg-build-test`]: bin/pg-build-test
 [`pgxn-bundle`]: bin/pgxn-bundle
+[`pgxn-release`]: bin/pgxn-release
 [PostgreSQL Apt]: https://wiki.postgresql.org/wiki/Apt
 [back to 8.4]: http://apt.postgresql.org/pub/repos/apt/dists/buster-pgdg/
 [GithHub Workflow]: https://help.github.com/en/actions/configuring-and-managing-workflows
