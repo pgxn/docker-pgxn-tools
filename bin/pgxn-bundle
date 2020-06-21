@@ -13,4 +13,11 @@ else
     exit 2
 fi
 
+# Get the extension name and version.
+DISTNAME=${PGXN_DIST_NAME:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{name}' META.json)}
+VERSION=${PGXN_DIST_VERSION:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{version}' META.json)}
+
+echo "Bundling $DISTNAME $VERSION..."
+
 # Now bundle up the distribution for release.
+env
