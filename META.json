@@ -1,0 +1,49 @@
+{
+   "name": "widget",
+   "abstract": "A test widget",
+   "description": "Just for testing, nothing to see here, move along.",
+   "version": "1.0.0",
+   "maintainer": [
+      "David E. Wheeler <david@justatheory.com>"
+   ],
+   "license": "postgresql",
+   "provides": {
+      "widget": {
+         "abstract": "A test widget",
+         "file": "widget.sql.sql",
+         "version": "1.0.0"
+      }
+   },
+   "prereqs": {
+      "runtime": {
+         "requires": {
+            "PostgreSQL": "9.2.0"
+         }
+      },
+      "test": {
+         "requires": {
+            "plpgsql": 0
+         }
+      }
+   },
+   "resources": {
+      "bugtracker": {
+         "web": "https://github.com/pgxn/docker-pgxn-tools/issues/"
+      },
+      "repository": {
+         "url": "git://github.com/pgxn/docker-pgxn-tools.git",
+         "web": "https://github.com/pgxn/docker-pgxn-tools/",
+         "type": "git"
+      }
+   },
+   "generated_by": "David E. Wheeler",
+   "meta-spec": {
+      "version": "1.0.0",
+      "url": "https://pgxn.org/meta/spec.txt"
+   },
+   "tags": [
+      "test",
+      "docker",
+      "github actions"
+   ]
+}

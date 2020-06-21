@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -eu
+
+# First check that the meta file is valid.
+if [ -e META.json ]; then
+    echo Validating META.json...
+    pgxn validate-meta
+else
+    echo 'ERROR:  No META.json file'
+    echo 'DETAIL: See http://manager.pgxn.org/howto for how to create a PGXN'
+    echo '        distribution, including the required META.json file.'
+    exit 2
+fi
