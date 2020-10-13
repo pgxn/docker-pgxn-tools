@@ -37,7 +37,7 @@ jobs:
   build:
     strategy:
       matrix:
-        pg: [12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4]
+        pg: [13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4]
     name: 🐘 PostgreSQL ${{ matrix.pg }}
     runs-on: ubuntu-latest
     container: pgxn/pgxn-tools
@@ -50,7 +50,7 @@ jobs:
         run: pg-build-test
   release:
     name: Release on PGXN
-    # Release pon push to main when the test job succeeds.
+    # Release upon push to main when the test job succeeds.
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.test.result == 'success'
     runs-on: ubuntu-latest
