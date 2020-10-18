@@ -20,7 +20,7 @@ contains these utilities:
 
 The image is based on the Debian Buster Slim image, and uses the
 [PostgreSQL Apt] repository to install PostgreSQL, supporting versions
-[back to 8.4].
+[back to 8.4] as well as the latest prerelease version.
 
 GitHub Workflow
 ---------------
@@ -37,7 +37,7 @@ jobs:
   build:
     strategy:
       matrix:
-        pg: [13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4]
+        pg: [14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4]
     name: 🐘 PostgreSQL ${{ matrix.pg }}
     runs-on: ubuntu-latest
     container: pgxn/pgxn-tools
