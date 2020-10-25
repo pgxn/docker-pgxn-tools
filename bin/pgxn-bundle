@@ -28,4 +28,4 @@ else
     (cd /tmp && zip -r $release.zip $release)
     mv /tmp/$release.zip .
 fi
-echo "::set-output name=bundle::$release"
+echo "::set-output name=bundle::$release.zip"
