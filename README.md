@@ -8,9 +8,9 @@ docker run -it --rm --mount "type=bind,src=$(pwd),dst=/repo" pgxn/pgxn-tools \
     sh -c 'cd /repo && pg-start 12 && pg-build-test'
 ```
 
-This project provides a simple Docker image to enable the automated testing
-of PGXN extensions against multiple versions of PostgreSQL. The image
-contains these utilities:
+This project provides a simple Docker image to enable the automated testing of
+PGXN extensions against multiple versions of PostgreSQL, as well as publishing
+releases to PGXN. The image contains these utilities:
 
 *   [`pgxn`][cli]: The PGXN command-line client
 *   [`pg-start`] Pass a PostgreSQL major version to install and starts a PostgreSQL cluster
@@ -20,21 +20,19 @@ contains these utilities:
 
 The image is based on the Debian Buster Slim image, and uses the
 [PostgreSQL Apt] repository to install PostgreSQL, supporting versions
-[back to 8.4] as well as the latest prerelease version.
+[back to 8.4], as well as the latest prerelease version.
 
 GitHub Workflow
 ---------------
 
-Here's a sample [GithHub Workflow]:
+Here's a sample [GithHub Workflow] to run tests on multiple versions of
+PostgreSQL for every push and pull request:
 
 ``` yaml
 name: CI
-  push:
-    branches: ['*']
-  pull_request:
-    branches: ['*']
+on: [push, pull_request]
 jobs:
-  build:
+  test:
     strategy:
       matrix:
         pg: [14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4]
@@ -48,24 +46,58 @@ jobs:
         uses: actions/checkout@v2
       - name: Test on PostgreSQL ${{ matrix.pg }}
         run: pg-build-test
+```
+
+This example demonstrates automatic publishing of a release whenever a tag is
+pushed matching  `v*`. It publishes both to GitHub (using the [create-release]
+and [upload-release-asset] actions) and to PGXN:
+
+``` yaml
+name: Release
+on:
+  push:
+    tags:
+      - 'v*' # Push events matching v1.0, v20.15.10, etc.
+jobs:
   release:
-    name: Release on PGXN
-    # Release upon push to main when the test job succeeds.
-    needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.test.result == 'success'
+    name: Release on GitHub and PGXN
     runs-on: ubuntu-latest
-    container:
-      image: pgxn/pgxn-tools
-      env:
-        PGXN_USERNAME: ${{ secrets.PGXN_USERNAME }}
-        PGXN_PASSWORD: ${{ secrets.PGXN_PASSWORD }}
+    container: pgxn/pgxn-tools
+    env:
+      # Required to create GitHub release and upload the bundle.
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v2
-      - name: Bundle the Release
-        run: pgxn-bundle
-      - name: Release on PGXN
-        run: pgxn-release
+    - name: Check out the repo
+      uses: actions/checkout@v2
+    - name: Bundle the Release
+      id: bundle
+      run: pgxn-bundle
+    - name: Create GitHub Release
+      id: release
+      uses: actions/create-release@v1
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          Changes in this Release
+          - First Change
+          - Second Change
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      with:
+        # Reference the upload URL and bundle name from previous steps.
+        upload_url: ${{ steps.release.outputs.upload_url }}
+        asset_path: ./${{ steps.bundle.outputs.bundle }}
+        asset_name: ${{ steps.bundle.outputs.bundle }}
+        asset_content_type: application/zip
+    - name: Release on PGXN
+      env:
+        # Required to release on PGXN.
+        PGXN_USERNAME: ${{ secrets.PGXN_USERNAME }}
+        PGXN_USERNAME: ${{ secrets.PGXN_PASSWORD }}
+      run: pgxn-release
 ```
 
 Tools
@@ -122,9 +154,15 @@ git archive --format zip --prefix=${PGXN_DIST_NAME}-${PGXN_DIST_VERSION}/ \
             --output ${PGXN_DIST_NAME}-${PGXN_DIST_VERSION} HEAD
 ```
 
-If the `$PGXN_DIST_NAME` or `$PGXN_DIST_VERSION` variable is not set, the extension
-name and version are read from the `META.json` file (indeed, this is preferred).
-The zip file will be at the root of the repository, ready for release.
+If the `$PGXN_DIST_NAME` or `$PGXN_DIST_VERSION` variable is not set, the
+extension name and version are read from the `META.json` file (indeed, this
+is preferred). The zip file will be at the root of the repository, ready for
+release, and the name of the bundle will be output in this format, for use in
+GitHub Actions such as [upload-release-asset]:
+
+``` sh
+echo ::set-output name=bundle::${PGXN_DIST_NAME}-${PGXN_DIST_VERSION}.zip
+```
 
 ### [`pgxn-release`]
 
@@ -181,6 +219,8 @@ Copyright (c) 2020 The PGXN Maintainers. Distributed under the [PostgreSQL Licen
   [PostgreSQL Apt]: https://wiki.postgresql.org/wiki/Apt
   [back to 8.4]: http://apt.postgresql.org/pub/repos/apt/dists/buster-pgdg/
   [GithHub Workflow]: https://help.github.com/en/actions/configuring-and-managing-workflows
+  [create-release]: https://github.com/actions/create-release
+  [upload-release-asset]: https://github.com/actions/upload-release-asset
   [PGXN]: https;//pgxn.org/ "The PostgreSQL Extension Network"
   [David E. Wheeler]: https://justatheory.com/
   [PostgreSQL License]: https://opensource.org/licenses/PostgreSQL
