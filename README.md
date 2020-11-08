@@ -72,6 +72,12 @@ jobs:
     - name: Bundle the Release
       id: bundle
       run: pgxn-bundle
+    - name: Release on PGXN
+      env:
+        # Required to release on PGXN.
+        PGXN_USERNAME: ${{ secrets.PGXN_USERNAME }}
+        PGXN_USERNAME: ${{ secrets.PGXN_PASSWORD }}
+      run: pgxn-release
     - name: Create GitHub Release
       id: release
       uses: actions/create-release@v1
@@ -82,8 +88,6 @@ jobs:
           Changes in this Release
           - First Change
           - Second Change
-        draft: false
-        prerelease: false
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       with:
@@ -92,12 +96,6 @@ jobs:
         asset_path: ./${{ steps.bundle.outputs.bundle }}
         asset_name: ${{ steps.bundle.outputs.bundle }}
         asset_content_type: application/zip
-    - name: Release on PGXN
-      env:
-        # Required to release on PGXN.
-        PGXN_USERNAME: ${{ secrets.PGXN_USERNAME }}
-        PGXN_USERNAME: ${{ secrets.PGXN_PASSWORD }}
-      run: pgxn-release
 ```
 
 Tools
@@ -162,6 +160,18 @@ GitHub Actions such as [upload-release-asset]:
 
 ``` sh
 echo ::set-output name=bundle::${PGXN_DIST_NAME}-${PGXN_DIST_VERSION}.zip
+```
+
+To exclude files from the bundle, add a `.gitattributes` file to the repository
+and use the `export-ignore` attribute to identify files and directories to
+exclude. This example excludes some typical Git and GitHub files and
+directories, as well as a test script:
+
+```
+.gitignore export-ignore
+.gitattributes export-ignore
+test.sh export-ignore
+.github export-ignore
 ```
 
 ### [`pgxn-release`]
