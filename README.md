@@ -118,6 +118,26 @@ you need the cluster configured with a specific locale (for collation
 predictability, for example), set the `$LANG` environment variable before
 calling `pg-start`.
 
+If you need to access the `postgresql.conf`, say to add additional configuration,
+you can use the `SHOW config_file` SQL command like so:
+
+``` sh
+psql --no-psqlrc -U postgres -Atqc 'SHOW config_file'
+```
+
+For example, to load PL/Perl:
+
+```
+echo "shared_preload_libraries = '$libdir/plperl'" >> $(psql --no-psqlrc -U postgres -Atqc 'SHOW config_file')
+```
+
+The cluster is named "test", and if you need to restart it (e.g. because you
+modified the `postgresql.conf` file), use `pg_ctlcluster` like so:
+
+``` sh
+pg_ctlcluster 12 test restart
+```
+
 ### [`pg-build-test`]
 
 ``` sh
