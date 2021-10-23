@@ -238,8 +238,8 @@ Author
 Copyright and License
 ---------------------
 
-Copyright (c) 2020 The PGXN Maintainers. Distributed under the [PostgreSQL License]
-(see [LICENSE]).
+Copyright (c) 2020-2021 The PGXN Maintainers. Distributed under the
+[PostgreSQL License] (see [LICENSE]).
 
   [cli]: https://github.com/pgxn/pgxnclient
   [`pg-start`]: bin/pg-start

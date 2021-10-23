@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: ['*']
   schedule:
-    - cron: '0 14 30 * *' # Monthly at 2pm on the 30th
+    - cron: '0 14 3 * *' # Monthly at 2pm on the 3rd
 jobs:
   test:
     name: 🐘 PostgreSQL ${{ matrix.pg }}
