@@ -20,7 +20,7 @@ releases to PGXN. The image contains these utilities:
 
 The image is based on the Debian Buster Slim image, and uses the
 [PostgreSQL Apt] repository to install PostgreSQL, supporting versions
-[back to 8.4], as well as the latest prerelease version.
+[back to 8.2], as well as the latest prerelease version.
 
 GitHub Workflow
 ---------------
@@ -35,7 +35,7 @@ jobs:
   test:
     strategy:
       matrix:
-        pg: [15, 14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4]
+        pg: [15, 14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4, 8.3, 8.2]
     name: 🐘 PostgreSQL ${{ matrix.pg }}
     runs-on: ubuntu-latest
     container: pgxn/pgxn-tools
@@ -247,7 +247,7 @@ Copyright (c) 2020-2021 The PGXN Maintainers. Distributed under the
   [`pgxn-bundle`]: bin/pgxn-bundle
   [`pgxn-release`]: bin/pgxn-release
   [PostgreSQL Apt]: https://wiki.postgresql.org/wiki/Apt
-  [back to 8.4]: http://apt.postgresql.org/pub/repos/apt/dists/bullseye-pgdg/
+  [back to 8.2]: http://apt.postgresql.org/pub/repos/apt/dists/bullseye-pgdg/
   [GithHub Workflow]: https://help.github.com/en/actions/configuring-and-managing-workflows
   [create-release]: https://github.com/actions/create-release
   [upload-release-asset]: https://github.com/actions/upload-release-asset
