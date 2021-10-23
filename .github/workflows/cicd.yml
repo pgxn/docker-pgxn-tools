@@ -20,9 +20,9 @@ jobs:
       - run: echo "${{ github.ref }}"
   publish:
     name: Push Docker image to Docker Hub
-    # Publish main when the test job succeeds and it's not a pull request.
+    # Publish buster when the test job succeeds and it's not a pull request.
     needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.test.result == 'success'
+    if: github.ref == 'refs/heads/buster' && github.event_name != 'pull_request' && needs.test.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -35,4 +35,4 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: pgxn/pgxn-tools
           tag_with_ref: true
-          tags: latest,buster
+          tags: buster
