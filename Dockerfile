@@ -1,4 +1,4 @@
-FROM debian:buster-slim AS pgxn-config
+FROM debian:bullseye-slim AS pgxn-config
 
 ADD https://salsa.debian.org/postgresql/postgresql-common/-/raw/master/pgdg/apt.postgresql.org.sh /usr/local/bin/
 
