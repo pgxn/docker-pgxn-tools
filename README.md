@@ -13,6 +13,7 @@ PGXN extensions against multiple versions of PostgreSQL, as well as publishing
 releases to PGXN. The image contains these utilities:
 
 *   [`pgxn`][cli]: The PGXN command-line client
+*   [`pg_prove`]: Runs and harnessing pgTAP tests
 *   [`pg-start`] Pass a PostgreSQL major version to install and starts a PostgreSQL cluster
 *   [`pg-build-test`]: Builds and tests an extension in the current directory
 *   [`pgxn-bundle`]: Validates the PGXN META.json file and bundles up a release
@@ -230,6 +231,21 @@ pg-build-test
 
 Please refer to [the docs] for all the details.
 
+### [`pg_prove`]
+
+``` sh
+pg-start 12
+pg_prove -r --ext .sql test/
+```
+
+[`pg_prove`] is a command-line application to run one or more [pgTAP] tests in a
+PostgreSQL database.
+
+[pgTAP] is a suite of database functions that make it easy to write
+[TAP]-emitting unit tests in `psql` scripts or xUnit-style test functions. The
+TAP output is suitable for harvesting, analysis, and reporting by [`pg_prove`]
+or other [TAP] tools.
+
 Author
 ------
 
@@ -242,6 +258,7 @@ Copyright (c) 2020-2021 The PGXN Maintainers. Distributed under the
 [PostgreSQL License] (see [LICENSE]).
 
   [cli]: https://github.com/pgxn/pgxnclient
+  [`pg_prove`]: https://metacpan.org/pod/pg_prove
   [`pg-start`]: bin/pg-start
   [`pg-build-test`]: bin/pg-build-test
   [`pgxn-bundle`]: bin/pgxn-bundle
@@ -256,3 +273,5 @@ Copyright (c) 2020-2021 The PGXN Maintainers. Distributed under the
   [PostgreSQL License]: https://opensource.org/licenses/PostgreSQL
   [LICENSE]: LICENSE
   [the docs]: https://pgxn.github.io/pgxnclient/
+  [pgTAP]: https://pgtap.org/
+  [TAP]: https://testanything.org "Test Anything Protocol"
