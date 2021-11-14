@@ -113,11 +113,11 @@ pg-start 11 libsodium-dev
 
 Installs the specified version of PostgreSQL from the [PostgreSQL Apt] community
 repository, as well as any additional Debian core or PostgreSQL packages passed
-as subsequent arguments. It then starts the cluster on port 5432 with the system
-locale and encoding (`C.UTF-8` by default) and trust authentication enabled. If
-you need the cluster configured with a specific locale (for collation
-predictability, for example), set the `$LANG` environment variable before
-calling `pg-start`.
+as subsequent arguments. It then starts the cluster on 5432 (or `$PGPORT` if
+it's set) with the system locale and encoding (`C.UTF-8` by default) and trust
+authentication enabled. If you need the cluster configured with a specific
+locale (for collation predictability, for example), set the `$LANG` environment
+variable before calling `pg-start`.
 
 If you need to access the `postgresql.conf`, say to add additional configuration,
 you can use the `SHOW config_file` SQL command like so:
