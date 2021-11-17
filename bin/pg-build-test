@@ -4,7 +4,7 @@
 
 set -eux
 
-make all
+make all PROFILE="-Werror"
 make install
 status=0
 make installcheck PGUSER=postgres || status=$?
