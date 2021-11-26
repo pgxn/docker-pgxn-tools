@@ -22,7 +22,7 @@ jobs:
   publish:
     # Publish for a tag starting with v.
     name: Push to Docker Hub
-    needs: test
+    # needs: test
     # if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
