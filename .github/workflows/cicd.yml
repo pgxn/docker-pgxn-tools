@@ -1,9 +1,7 @@
 name: CI/CD
 on:
   push:
-    branches: ['*']
   pull_request:
-    branches: ['*']
   schedule:
     - cron: '0 14 3 * *' # Monthly at 2pm on the 3rd
 jobs:
@@ -12,17 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pg: [15, 14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4, 8.3, 8.2]
+        pg: [15, 14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, '9.0', 8.4, 8.3, 8.2]
     steps:
       - uses: actions/checkout@v2
-      - run: docker build -t pgxn-tools-test .
-      - run: "docker run --rm --mount \"type=bind,src=$(pwd)/test,dst=/repo\" pgxn-tools-test /repo/runtest.sh ${{ matrix.pg }}"
-      - run: echo "${{ github.ref }}"
+      - name: Build Image
+        run: docker build -t pgxn-tools-test .
+      - name: Test as root
+        run: "docker run --rm --mount \"type=bind,src=$(pwd)/test,dst=/repo\" pgxn-tools-test /repo/runtest.sh ${{ matrix.pg }}"
+      - name: Test as non-root
+        run: "docker run --rm --mount \"type=bind,src=$(pwd)/test,dst=/repo\" -e AS_USER=worker pgxn-tools-test /repo/runtest.sh ${{ matrix.pg }}"
   publish:
+    # Publish for a tag starting with v.
     name: Push Docker image to Docker Hub
-    # Publish main when the test job succeeds and it's not a pull request.
     needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.test.result == 'success'
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo

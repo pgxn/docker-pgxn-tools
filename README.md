@@ -23,10 +23,38 @@ The image is based on the Debian Buster Slim image, and uses the
 [PostgreSQL Apt] repository to install PostgreSQL, supporting versions
 [back to 8.2], as well as the latest prerelease version.
 
+Unprivileged User
+-----------------
+
+By default the container runs as `root`. To run as an unprivileged user, pass
+the `AS_USER` environment variable, and a user with that name will be created
+with `sudo` privileges (already used by `pg-start` and `pg-build-test`):
+
+``` sh
+docker run -it --rm -e AS_USER=worker \
+    --mount "type=bind,src=$(pwd),dst=/repo" pgxn/pgxn-tools \
+    sh -c 'cd /repo && sudo pg-start 14 && pg-build-test'
+```
+
+The created user will have the UID 1001 unless `LOCAL_UID` is passed, which can
+usefully be set to the local UID so that the user has permission to access files
+in a mounted directory:
+
+``` sh
+docker run -it --rm -e AS_USER=worker -e LOCAL_UID=$(id -u) \
+    --mount "type=bind,src=$(pwd),dst=/repo" pgxn/pgxn-tools \
+    sh -c 'cd /repo && sudo pg-start 14 && pg-build-test'
+```
+
+If no `LOCAL_UID` is set but `GITHUB_EVENT_PATH` is set (as it is in GitHub
+workflows), the UID will be set to the same value as the owner of the
+`GITHUB_EVENT_PATH` file. This allows the user to have full access to the
+GitHub-mounted project directory.
+
 GitHub Workflow
 ---------------
 
-Here's a sample [GithHub Workflow] to run tests on multiple versions of
+Here's a sample [GitHub Workflow] to run tests on multiple versions of
 PostgreSQL for every push and pull request:
 
 ``` yaml
@@ -49,8 +77,17 @@ jobs:
         run: pg-build-test
 ```
 
+If you need to run the tests as an unprivileged user, pass the `AS_USER` variable
+as a container option:
+
+``` yaml
+    container:
+      image: pgxn/pgxn-tools
+      options: -e AS_USER=rando
+```
+
 This example demonstrates automatic publishing of a release whenever a tag is
-pushed matching  `v*`. It publishes both to GitHub (using the [create-release]
+pushed matching `v*`. It publishes both to GitHub (using the [create-release]
 and [upload-release-asset] actions) and to PGXN:
 
 ``` yaml

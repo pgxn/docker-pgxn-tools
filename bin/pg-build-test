@@ -5,7 +5,7 @@
 set -eux
 
 make all PROFILE="-Werror"
-make install
+sudo make install
 status=0
 make installcheck PGUSER=postgres || status=$?
 if test -f regression.diffs; then cat regression.diffs; fi
