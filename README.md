@@ -51,6 +51,11 @@ workflows), the UID will be set to the same value as the owner of the
 `GITHUB_EVENT_PATH` file. This allows the user to have full access to the
 GitHub-mounted project directory.
 
+### Postgres User
+
+The `postgres` user, created by `pg-start`, also has full permission to use
+`sudo` without a password prompt.
+
 GitHub Workflow
 ---------------
 

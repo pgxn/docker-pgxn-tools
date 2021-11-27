@@ -15,7 +15,8 @@ RUN chmod +x /usr/local/bin/apt.postgresql.org.sh \
     && ./cpanm --notest PGXN::Meta::Validator \
     && rm -r cpanm ~/.cpanm \
     && echo Defaults	lecture = never >> /etc/sudoers \
-    && perl -i -pe 's/\bALL$/NOPASSWD:ALL/g' /etc/sudoers
+    && perl -i -pe 's/\bALL$/NOPASSWD:ALL/g' /etc/sudoers \
+    && echo 'postgres	ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 COPY bin/* /usr/local/bin/
 
