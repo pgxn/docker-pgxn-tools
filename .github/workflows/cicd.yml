@@ -37,6 +37,9 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern=v{{major}}
+          labels: |
+            org.opencontainers.image.title=PGXN Tools
+            org.opencontainers.image.license=PostgreSQL
 
       # - name: Build and Push to Docker Hub
       #   # https://github.com/marketplace/actions/build-and-push-docker-images
