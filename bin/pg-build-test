@@ -4,7 +4,11 @@
 
 set -eux
 
-make all PROFILE="-Werror"
+# set PROFILE to a default of -Werror, otherwise use the passed in value. Note
+# the double dash is intentional.
+export PROFILE="${PROFILE:--Werror}"
+
+make all
 sudo make install
 status=0
 make installcheck PGUSER=postgres || status=$?
