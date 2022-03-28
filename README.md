@@ -119,7 +119,7 @@ jobs:
       env:
         # Required to release on PGXN.
         PGXN_USERNAME: ${{ secrets.PGXN_USERNAME }}
-        PGXN_USERNAME: ${{ secrets.PGXN_PASSWORD }}
+        PGXN_PASSWORD: ${{ secrets.PGXN_PASSWORD }}
       run: pgxn-release
     - name: Create GitHub Release
       id: release
