@@ -28,8 +28,8 @@ else
     (cd /tmp && zip -r $release.zip $release)
     mv /tmp/$release.zip .
 fi
-if [[ -z "$GITHUB_OUTPUT" ]]; then
-    echo "::set-output name=bundle::$release.zip"
-else
+if [[ -n "${GITHUB_OUTPUT-}" ]]; then
     echo "bundle=$release.zip" >> $GITHUB_OUTPUT
+else
+    echo "::set-output name=bundle::$release.zip"
 fi
