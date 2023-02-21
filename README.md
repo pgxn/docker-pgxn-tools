@@ -306,7 +306,7 @@ Copyright (c) 2020-2021 The PGXN Maintainers. Distributed under the
   [`pgxn-bundle`]: bin/pgxn-bundle
   [`pgxn-release`]: bin/pgxn-release
   [PostgreSQL Apt]: https://wiki.postgresql.org/wiki/Apt
-  [back to 8.2]: http://apt.postgresql.org/pub/repos/apt/dists/bullseye-pgdg/
+  [back to 8.2]: http://apt.postgresql.org/pub/repos/apt/dists/bookworm-pgdg/
   [GithHub Workflow]: https://help.github.com/en/actions/configuring-and-managing-workflows
   [create-release]: https://github.com/actions/create-release
   [upload-release-asset]: https://github.com/actions/upload-release-asset
