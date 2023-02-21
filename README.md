@@ -77,7 +77,7 @@ jobs:
       - name: Start PostgreSQL ${{ matrix.pg }}
         run: pg-start ${{ matrix.pg }}
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Test on PostgreSQL ${{ matrix.pg }}
         run: pg-build-test
 ```
@@ -111,7 +111,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - name: Check out the repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Bundle the Release
       id: bundle
       run: pgxn-bundle
@@ -218,11 +218,11 @@ git archive --format zip --prefix=${PGXN_DIST_NAME}-${PGXN_DIST_VERSION}/ \
 If the `$PGXN_DIST_NAME` or `$PGXN_DIST_VERSION` variable is not set, the
 extension name and version are read from the `META.json` file (indeed, this
 is preferred). The zip file will be at the root of the repository, ready for
-release, and the name of the bundle will be output in this format, for use in
-GitHub Actions such as [upload-release-asset]:
+release, and the name of the bundle will be appended to the `$GITHUB_OUTPUT`
+file in this format, for use in GitHub Actions such as [upload-release-asset]:
 
 ``` sh
-echo ::set-output name=bundle::${PGXN_DIST_NAME}-${PGXN_DIST_VERSION}.zip
+echo bundle=${PGXN_DIST_NAME}-${PGXN_DIST_VERSION}.zip >> $GITHUB_OUTPUT
 ```
 
 To exclude files from the bundle, add a `.gitattributes` file to the repository

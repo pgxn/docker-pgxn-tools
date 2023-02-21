@@ -12,7 +12,7 @@ jobs:
       matrix:
         pg: [15, 14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, '9.0', 8.4, 8.3, 8.2]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Build Image
         run: docker build -t pgxn-tools-test .
       - name: Test as root
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v3
@@ -48,7 +48,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and Push
         # https://github.com/marketplace/actions/build-and-push-docker-images
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
