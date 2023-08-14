@@ -4,8 +4,8 @@ PGXN Extension Build and Test Tools Docker Image
 [![Test & Release Status](https://github.com/pgxn/docker-pgxn-tools/workflows/CI/CD/badge.svg)](https://github.com/pgxn/docker-pgxn-tools/actions)
 
 ``` sh
-docker run -it --rm --mount "type=bind,src=$(pwd),dst=/repo" pgxn/pgxn-tools \
-    sh -c 'cd /repo && pg-start 12 && pg-build-test'
+docker run -it --rm -w /repo --mount "type=bind,src=$(pwd),dst=/repo" pgxn/pgxn-tools \
+    sh -c 'pg-start 12 && pg-build-test'
 ```
 
 This project provides a simple Docker image to enable the automated testing of
@@ -19,7 +19,7 @@ releases to PGXN. The image contains these utilities:
 *   [`pgxn-bundle`]: Validates the PGXN META.json file and bundles up a release
 *   [`pgxn-release`]: Release to PGXN
 
-The image is based on the Debian Buster Slim image, and uses the
+The image is based on the Debian Bookworm Slim image, and uses the
 [PostgreSQL Apt] repository to install PostgreSQL, supporting versions
 [back to 8.2], as well as the latest prerelease version.
 
@@ -31,9 +31,9 @@ the `AS_USER` environment variable, and a user with that name will be created
 with `sudo` privileges (already used by `pg-start` and `pg-build-test`):
 
 ``` sh
-docker run -it --rm -e AS_USER=worker \
+docker run -it --rm -w /repo -e AS_USER=worker \
     --mount "type=bind,src=$(pwd),dst=/repo" pgxn/pgxn-tools \
-    sh -c 'cd /repo && sudo pg-start 14 && pg-build-test'
+    sh -c 'sudo pg-start 14 && pg-build-test'
 ```
 
 The created user will have the UID 1001 unless `LOCAL_UID` is passed, which can
@@ -41,9 +41,9 @@ usefully be set to the local UID so that the user has permission to access files
 in a mounted directory:
 
 ``` sh
-docker run -it --rm -e AS_USER=worker -e LOCAL_UID=$(id -u) \
+docker run -it --rm -w /repo -e AS_USER=worker -e LOCAL_UID=$(id -u) \
     --mount "type=bind,src=$(pwd),dst=/repo" pgxn/pgxn-tools \
-    sh -c 'cd /repo && sudo pg-start 14 && pg-build-test'
+    sh -c 'sudo pg-start 14 && pg-build-test'
 ```
 
 If no `LOCAL_UID` is set but `GITHUB_EVENT_PATH` is set (as it is in GitHub
@@ -69,7 +69,7 @@ jobs:
   test:
     strategy:
       matrix:
-        pg: [15, 14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4, 8.3, 8.2]
+        pg: [16, 15, 14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4, 8.3, 8.2]
     name: 🐘 PostgreSQL ${{ matrix.pg }}
     runs-on: ubuntu-latest
     container: pgxn/pgxn-tools
@@ -82,13 +82,13 @@ jobs:
         run: pg-build-test
 ```
 
-If you need to run the tests as an unprivileged user, pass the `AS_USER` variable
-as a container option:
+If you need to run the tests as an unprivileged user, pass the `AS_USER`
+variable as a container option:
 
 ``` yaml
     container:
       image: pgxn/pgxn-tools
-      options: -e AS_USER=rando
+      options: -e AS_USER=randy
 ```
 
 This example demonstrates automatic publishing of a release whenever a tag is
@@ -170,7 +170,7 @@ psql --no-psqlrc -U postgres -Atqc 'SHOW config_file'
 
 For example, to load PL/Perl:
 
-```
+``` sh
 echo "shared_preload_libraries = '$libdir/plperl'" >> $(psql --no-psqlrc -U postgres -Atqc 'SHOW config_file')
 ```
 
@@ -296,7 +296,7 @@ Author
 Copyright and License
 ---------------------
 
-Copyright (c) 2020-2021 The PGXN Maintainers. Distributed under the
+Copyright (c) 2020-2023 The PGXN Maintainers. Distributed under the
 [PostgreSQL License] (see [LICENSE]).
 
   [cli]: https://github.com/pgxn/pgxnclient
