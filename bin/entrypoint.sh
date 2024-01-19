@@ -2,6 +2,10 @@
 
 set -e
 
+# Ensure Git can do stuff in the working directory.
+# https://github.com/pgxn/docker-pgxn-tools/issues/5
+git config --system --add safe.directory "$PWD"
+
 # Just continue if unprivileged user not requested.
 [ -z "$AS_USER" ] && exec "$@"
 

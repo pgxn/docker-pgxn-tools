@@ -7,7 +7,7 @@ RUN chmod +x /usr/local/bin/apt.postgresql.org.sh \
     && apt-get install -y --no-install-recommends \
         build-essential clang llvm llvm-dev llvm-runtime \
         pgxnclient libtap-parser-sourcehandler-pgtap-perl sudo gosu \
-        ca-certificates gnupg2 zip curl git libicu-dev libxml2 locales ssl-cert \
+        ca-certificates gnupg2 zip unzip curl git libicu-dev libxml2 locales ssl-cert \
     && apt-get -y purge postgresql-client-common \
     && apt-get clean \
     && rm -rf /var/cache/apt/* /var/lib/apt/lists/* \

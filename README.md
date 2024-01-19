@@ -4,7 +4,7 @@ PGXN Extension Build and Test Tools Docker Image
 [![Test & Release Status](https://github.com/pgxn/docker-pgxn-tools/workflows/CI/CD/badge.svg)](https://github.com/pgxn/docker-pgxn-tools/actions)
 
 ``` sh
-docker run -it --rm -w /repo --mount "type=bind,src=$(pwd),dst=/repo" pgxn/pgxn-tools \
+docker run -it --rm -w /repo --volume "$PWD:/repo" pgxn/pgxn-tools \
     sh -c 'pg-start 12 && pg-build-test'
 ```
 
@@ -32,24 +32,24 @@ with `sudo` privileges (already used by `pg-start` and `pg-build-test`):
 
 ``` sh
 docker run -it --rm -w /repo -e AS_USER=worker \
-    --mount "type=bind,src=$(pwd),dst=/repo" pgxn/pgxn-tools \
+    --volume "$PWD:/repo" pgxn/pgxn-tools \
     sh -c 'sudo pg-start 14 && pg-build-test'
 ```
 
 The created user will have the UID 1001 unless `LOCAL_UID` is passed, which can
 usefully be set to the local UID so that the user has permission to access files
-in a mounted directory:
+in a volume:
 
 ``` sh
 docker run -it --rm -w /repo -e AS_USER=worker -e LOCAL_UID=$(id -u) \
-    --mount "type=bind,src=$(pwd),dst=/repo" pgxn/pgxn-tools \
+    --volume "$PWD:/repo" pgxn/pgxn-tools \
     sh -c 'sudo pg-start 14 && pg-build-test'
 ```
 
 If no `LOCAL_UID` is set but `GITHUB_EVENT_PATH` is set (as it is in GitHub
 workflows), the UID will be set to the same value as the owner of the
 `GITHUB_EVENT_PATH` file. This allows the user to have full access to the
-GitHub-mounted project directory.
+GitHub project volume.
 
 ### Postgres User
 
@@ -288,6 +288,31 @@ PostgreSQL database.
 TAP output is suitable for harvesting, analysis, and reporting by [`pg_prove`]
 or other [TAP] tools.
 
+### Installed Packages
+
+The image includes these packages; pass additional packages to
+[`pg-start`](#pg-start) to install them while setting up PostgreSQL.
+
+*   [build-essential](https://packages.debian.org/bookworm/build-essential)
+*   [clang](https://packages.debian.org/bookworm/clang)
+*   [llvm](https://packages.debian.org/bookworm/llvm)
+*   [llvm-dev](https://packages.debian.org/bookworm/llvm-dev)
+*   [llvm-runtime](https://packages.debian.org/bookworm/llvm-runtime)
+*   [pgxnclient](https://packages.debian.org/bookworm/pgxnclient)
+*   [libtap-parser-sourcehandler-pgtap-perl](https://packages.debian.org/bookworm/libtap-parser-sourcehandler-pgtap-perl)
+*   [sudo](https://packages.debian.org/bookworm/sudo)
+*   [gosu](https://packages.debian.org/bookworm/gosu)
+*   [ca-certificates](https://packages.debian.org/bookworm/ca-certificates)
+*   [gnupg2](https://packages.debian.org/bookworm/gnupg2)
+*   [zip](https://packages.debian.org/bookworm/zip)
+*   [unzip](https://packages.debian.org/bookworm/unzip)
+*   [curl](https://packages.debian.org/bookworm/curl)
+*   [git](https://packages.debian.org/bookworm/git)
+*   [libicu-dev](https://packages.debian.org/bookworm/libicu-dev)
+*   [libxml2](https://packages.debian.org/bookworm/libxml2)
+*   [locales](https://packages.debian.org/bookworm/locales)
+*   [ssl-cert](https://packages.debian.org/bookworm/ssl-cert)
+
 Author
 ------
 
@@ -296,7 +321,7 @@ Author
 Copyright and License
 ---------------------
 
-Copyright (c) 2020-2023 The PGXN Maintainers. Distributed under the
+Copyright (c) 2020-2024 The PGXN Maintainers. Distributed under the
 [PostgreSQL License] (see [LICENSE]).
 
   [cli]: https://github.com/pgxn/pgxnclient
