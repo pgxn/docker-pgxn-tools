@@ -200,6 +200,14 @@ But a bit more, to ensure that the tests run as the `postgres` user, and if
 tests fail to emit the contents of the `regression.diffs` file. Designed to
 cover the most common PostgreSQL extension build-and-test patterns.
 
+By default, `pg-build-test` uses builds with `PROFILE=--Werror`; Specify an
+alternate `$PROFILE` environment variable to override it:
+
+``` sh
+export PROFILE=--Wall
+pg-build-test
+```
+
 ### [`pgxn-bundle`]
 
 ``` sh
