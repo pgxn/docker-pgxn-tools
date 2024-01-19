@@ -211,8 +211,15 @@ Validates the PGXN `META.json` file and bundles up the repository for release
 to PGXN. It does so by archiving the Git repository like so:
 
 ``` sh
-git archive --format zip --prefix=${PGXN_DIST_NAME}-${PGXN_DIST_VERSION}/ \
-            --output ${PGXN_DIST_NAME}-${PGXN_DIST_VERSION} HEAD
+git archive --format zip --prefix="${PGXN_DIST_NAME}-${PGXN_DIST_VERSION}/" \
+            --output "${PGXN_DIST_NAME}-${PGXN_DIST_VERSION}" HEAD
+```
+
+If `pgxn-bundle` detects no Git repository, it uses `zip` to zip up entire
+contents of the current directory with a command like this:
+
+```sh
+zip -r "${PGXN_DIST_NAME}-${PGXN_DIST_VERSION}.zip" "${PGXN_DIST_NAME}-${PGXN_DIST_VERSION}/"
 ```
 
 If the `$PGXN_DIST_NAME` or `$PGXN_DIST_VERSION` variable is not set, the
@@ -225,10 +232,10 @@ file in this format, for use in GitHub Actions such as [upload-release-asset]:
 echo bundle=${PGXN_DIST_NAME}-${PGXN_DIST_VERSION}.zip >> $GITHUB_OUTPUT
 ```
 
-To exclude files from the bundle, add a `.gitattributes` file to the repository
-and use the `export-ignore` attribute to identify files and directories to
-exclude. This example excludes some typical Git and GitHub files and
-directories, as well as a test script:
+To exclude Git repository files from the bundle, add a `.gitattributes` file to
+the repository and use the `export-ignore` attribute to identify files and
+directories to exclude. This example excludes some typical Git and GitHub files
+and directories, as well as a test script:
 
 ```
 .gitignore export-ignore
@@ -236,6 +243,33 @@ directories, as well as a test script:
 test.sh export-ignore
 .github export-ignore
 ```
+
+Use the `$GIT_BUNDLE_OPTS` variable to pass options to the `git archive` command
+or `$ZIP_BUNDLE_OPTS` to pass options to the `zip` command.
+
+For example, if a Git repo contains no `META.json`, but generates it via a
+`make` command, it will not be included in the zip archive, because
+`git archive` includes only committed files. Use the `--add-file` option to tell
+`git archive` to add it, like so:
+
+```sh
+make META.json
+export GIT_BUNDLE_OPTS="--add-file META.json"
+pgxn-bundle
+```
+
+If, on the other hand, you're not using a Git repository, `pgxn-bundle` will use
+the `zip` utility, instead. To exclude a file from the zip file, use the
+`$ZIP_BUNDLE_OPTS` variable to pass the `--exclude` option to `zip`, something
+like:
+
+``` sh
+export ZIP_BUNDLE_OPTS="--exclude */.dev-only.txt"
+pgxn-bundle
+```
+
+Note the `*/` prefix, required to match a file name under the
+`${PGXN_DIST_NAME}-${PGXN_DIST_VERSION}/` directory prefix.
 
 ### [`pgxn-release`]
 
