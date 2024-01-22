@@ -16,7 +16,9 @@ RUN chmod +x /usr/local/bin/apt.postgresql.org.sh \
     && rm -r cpanm ~/.cpanm \
     && echo Defaults	lecture = never >> /etc/sudoers \
     && perl -i -pe 's/\bALL$/NOPASSWD:ALL/g' /etc/sudoers \
-    && echo 'postgres	ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
+    && echo 'postgres	ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers \
+    # Ensure Git can do stuff in the working directory (issue #5).
+    && git config --system --add safe.directory '*'
 
 COPY bin/* /usr/local/bin/
 
