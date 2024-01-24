@@ -252,8 +252,13 @@ test.sh export-ignore
 .github export-ignore
 ```
 
-Use the `$GIT_BUNDLE_OPTS` variable to pass options to the `git archive` command
-or `$ZIP_BUNDLE_OPTS` to pass options to the `zip` command.
+To include Git submodules in the bundle, set [`GIT_ARCHIVE_CMD=archive-all`]
+and `pgxn-bundle` will use [git-archive-all] instead of `git archive` to create
+the bundle.
+
+Use the `$GIT_BUNDLE_OPTS` variable to pass options to the `git archive` (or
+`git archive-all`) command or `$ZIP_BUNDLE_OPTS` to pass options to the `zip`
+command.
 
 For example, if a Git repo contains no `META.json`, but generates it via a
 `make` command, it will not be included in the zip archive, because
@@ -340,6 +345,7 @@ The image includes these packages; pass additional packages to
 *   [llvm](https://packages.debian.org/bookworm/llvm)
 *   [llvm-dev](https://packages.debian.org/bookworm/llvm-dev)
 *   [llvm-runtime](https://packages.debian.org/bookworm/llvm-runtime)
+*   [cmake](https://packages.debian.org/bookworm/cmake)
 *   [pgxnclient](https://packages.debian.org/bookworm/pgxnclient)
 *   [libtap-parser-sourcehandler-pgtap-perl](https://packages.debian.org/bookworm/libtap-parser-sourcehandler-pgtap-perl)
 *   [sudo](https://packages.debian.org/bookworm/sudo)
@@ -348,12 +354,14 @@ The image includes these packages; pass additional packages to
 *   [gnupg2](https://packages.debian.org/bookworm/gnupg2)
 *   [zip](https://packages.debian.org/bookworm/zip)
 *   [unzip](https://packages.debian.org/bookworm/unzip)
+*   [libarchive-tools](https://packages.debian.org/bookworm/libarchive-tools)
 *   [curl](https://packages.debian.org/bookworm/curl)
 *   [git](https://packages.debian.org/bookworm/git)
 *   [libicu-dev](https://packages.debian.org/bookworm/libicu-dev)
 *   [libxml2](https://packages.debian.org/bookworm/libxml2)
 *   [locales](https://packages.debian.org/bookworm/locales)
 *   [ssl-cert](https://packages.debian.org/bookworm/ssl-cert)
+*   [git-archive-all](https://github.com/Kentzo/git-archive-all) (run `git archive-all`)
 
 Author
 ------
@@ -377,7 +385,8 @@ Copyright (c) 2020-2024 The PGXN Maintainers. Distributed under the
   [GithHub Workflow]: https://help.github.com/en/actions/configuring-and-managing-workflows
   [create-release]: https://github.com/actions/create-release
   [upload-release-asset]: https://github.com/actions/upload-release-asset
-  [PGXN]: https;//pgxn.org/ "The PostgreSQL Extension Network"
+  [git-archive-all]: https://github.com/Kentzo/git-archive-all
+  [PGXN]: https://pgxn.org/ "The PostgreSQL Extension Network"
   [David E. Wheeler]: https://justatheory.com/
   [PostgreSQL License]: https://opensource.org/licenses/PostgreSQL
   [LICENSE]: LICENSE

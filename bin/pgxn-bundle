@@ -14,20 +14,26 @@ else
 fi
 
 # Get the extension name and version.
-DISTNAME=${PGXN_DIST_NAME:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{name}' META.json)}
-VERSION=${PGXN_DIST_VERSION:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{version}' META.json)}
+DISTNAME="${PGXN_DIST_NAME:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{name}' META.json)}"
+VERSION="${PGXN_DIST_VERSION:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{version}' META.json)}"
 
 # Now bundle up the distribution for release.
-release=${DISTNAME}-${VERSION}
+release="${DISTNAME}-${VERSION}"
+cmd="${GIT_ARCHIVE_CMD:-archive}"
 if [ "true" == "$(git rev-parse --is-inside-work-tree 2>/dev/null)" ]; then
     echo "Bundling $release.zip with git archive..."
-    git archive -v --format zip --prefix=${release}/ ${GIT_BUNDLE_OPTS:-} --output ${release}.zip HEAD
+    if [ "${cmd}" = 'archive-all' ]; then
+        git archive-all -v --prefix "${release}/" ${GIT_BUNDLE_OPTS:-} "${release}.zip"
+    else
+        git archive -v --format zip --prefix "${release}/" ${GIT_BUNDLE_OPTS:-} --output "${release}.zip" HEAD
+    fi
 else
     echo "Bundling $release.zip with zip utility..."
-    mkdir /tmp/$release
-    cp -rf . /tmp/$release
+    mkdir "/tmp/$release"
+    cp -rf . "/tmp/$release"
     set -x
-    (cd /tmp && zip -r $release.zip $release ${ZIP_BUNDLE_OPTS:-})
-    mv /tmp/$release.zip .
+    (cd /tmp && zip -r "$release.zip" "$release" ${ZIP_BUNDLE_OPTS:-})
+    mv "/tmp/$release.zip" .
 fi
-echo "bundle=$release.zip" >> $GITHUB_OUTPUT
+
+[ -n "${GITHUB_OUTPUT:-}" ] && echo "bundle=$release.zip" >> $GITHUB_OUTPUT
