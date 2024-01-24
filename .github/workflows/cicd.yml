@@ -22,6 +22,9 @@ jobs:
         run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" -e AS_USER=worker pgxn-tools-test ./test/runtest.sh ${{ matrix.pg }} git"
       - name: Test Git with extra file
         run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" pgxn-tools-test ./test/runtest.sh ${{ matrix.pg }} git yes"
+      - name: Test Git with archive-all
+        env: { GIT_ARCHIVE_CMD: archive-all }
+        run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" pgxn-tools-test ./test/runtest.sh ${{ matrix.pg }} git"
       # Test without Git repo
       - name: Test Zip as root
         run: "docker run -w /repo --rm --volume \"$(pwd)/test:/repo\" pgxn-tools-test ./runtest.sh ${{ matrix.pg }} zip"
