@@ -3,11 +3,6 @@ PGXN Extension Build and Test Tools Docker Image
 
 [![Test & Release Status](https://github.com/pgxn/docker-pgxn-tools/workflows/CI/CD/badge.svg)](https://github.com/pgxn/docker-pgxn-tools/actions)
 
-``` sh
-docker run -it --rm -w /repo --volume "$PWD:/repo" pgxn/pgxn-tools \
-    sh -c 'pg-start 12 && pg-build-test'
-```
-
 This project provides a simple Docker image to enable the automated testing of
 PGXN extensions against multiple versions of PostgreSQL, as well as publishing
 releases to PGXN. The image contains these utilities:
@@ -23,11 +18,25 @@ The image is based on the Debian Bookworm Slim image, and uses the
 [PostgreSQL Apt] repository to install PostgreSQL, supporting versions
 [back to 8.2], as well as the latest prerelease version.
 
-Unprivileged User
------------------
+
+Running a Container
+-------------------
+
+To run pgxn-tools in Docker, use the standard Docker CLI, like so:
+
+``` sh
+docker run -it --rm -w /repo --volume "$PWD:/repo" pgxn/pgxn-tools \
+    sh -c 'pg-start 16 && pg-build-test'
+```
+
+This example mounts the current directory inside the container. Once inside, it
+starts Postgres 16 then builds and runs the tests for the extension in that
+directory.
+
+### Unprivileged User
 
 By default the container runs as `root`. To run as an unprivileged user, pass
-the `AS_USER` environment variable, and a user with that name will be created
+the `AS_USER` environment variable and a user with that name will be created
 with `sudo` privileges (already used by `pg-start` and `pg-build-test`):
 
 ``` sh
@@ -45,11 +54,6 @@ docker run -it --rm -w /repo -e AS_USER=worker -e LOCAL_UID=$(id -u) \
     --volume "$PWD:/repo" pgxn/pgxn-tools \
     sh -c 'sudo pg-start 14 && pg-build-test'
 ```
-
-If no `LOCAL_UID` is set but `GITHUB_EVENT_PATH` is set (as it is in GitHub
-workflows), the UID will be set to the same value as the owner of the
-`GITHUB_EVENT_PATH` file. This allows the user to have full access to the
-GitHub project volume.
 
 ### Postgres User
 
@@ -77,18 +81,9 @@ jobs:
       - name: Start PostgreSQL ${{ matrix.pg }}
         run: pg-start ${{ matrix.pg }}
       - name: Check out the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Test on PostgreSQL ${{ matrix.pg }}
         run: pg-build-test
-```
-
-If you need to run the tests as an unprivileged user, pass the `AS_USER`
-variable as a container option:
-
-``` yaml
-    container:
-      image: pgxn/pgxn-tools
-      options: -e AS_USER=randy
 ```
 
 This example demonstrates automatic publishing of a release whenever a tag is
@@ -99,8 +94,8 @@ and [upload-release-asset] actions) and to PGXN:
 name: Release
 on:
   push:
-    tags:
-      - 'v*' # Push events matching v1.0, v20.15.10, etc.
+    # Push events matching v1.0, v20.15.10, etc.
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
 jobs:
   release:
     name: Release on GitHub and PGXN
@@ -111,7 +106,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - name: Check out the repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Bundle the Release
       id: bundle
       run: pgxn-bundle
@@ -140,6 +135,27 @@ jobs:
         asset_name: ${{ steps.bundle.outputs.bundle }}
         asset_content_type: application/zip
 ```
+
+### Unprivileged User Workflow
+
+GitHub workflows [require the root user] to work with the workspace. To perform
+tasks as an unprivileged user, first set things up as the root user, then use
+[gosu] to execute a command as the `postgres` (can still run `sudo`) or `nobody`
+(no privileges at all) user. For example:
+
+``` yaml
+    container: pgxn/pgxn-tools
+    steps:
+      - uses: actions/checkout@v4
+      - run: pg-start 16
+      - run: chown -R postgres:postgres .
+      - run: gosu postgres pg-build-test
+```
+
+The checkout action, `pg-start`, and `chown` commands must run as `root`. Then,
+with the current directory's files all owned the newly-created `postgres` user,
+the last `run` commands executes `pg-build-test` as `postgres`, with the
+necessary permissions to write files to the workspace directory.
 
 Tools
 -----
@@ -388,7 +404,9 @@ Copyright (c) 2020-2024 The PGXN Maintainers. Distributed under the
   [`pgxn-release`]: bin/pgxn-release
   [PostgreSQL Apt]: https://wiki.postgresql.org/wiki/Apt
   [back to 8.2]: http://apt.postgresql.org/pub/repos/apt/dists/bookworm-pgdg/
+  [require the root user]: https://docs.github.com/en/actions/creating-actions/dockerfile-support-for-github-actions#user
   [GithHub Workflow]: https://help.github.com/en/actions/configuring-and-managing-workflows
+  [gosu]: https://github.com/tianon/gosu
   [create-release]: https://github.com/actions/create-release
   [upload-release-asset]: https://github.com/actions/upload-release-asset
   [git-archive-all]: https://github.com/Kentzo/git-archive-all
