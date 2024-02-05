@@ -335,6 +335,9 @@ PostgreSQL database.
 TAP output is suitable for harvesting, analysis, and reporting by [`pg_prove`]
 or other [TAP] tools.
 
+Note that these are not the same as [PostgreSQL TAP] tests, though they are
+also supported by the inclusion of IPC::Run in this image.
+
 ### Installed Packages
 
 The image includes these packages; pass additional packages to
@@ -358,6 +361,9 @@ The image includes these packages; pass additional packages to
 *   [curl](https://packages.debian.org/bookworm/curl)
 *   [git](https://packages.debian.org/bookworm/git)
 *   [libicu-dev](https://packages.debian.org/bookworm/libicu-dev)
+*   [libipc-run-perl](https://packages.debian.org/bookworm/libipc-run-perl)
+    (IPC::Run for [PostgreSQL TAP] tests)
+*   [libtest-simple-perl](https://packages.debian.org/bookworm/libtest-simple-perl)
 *   [libxml2](https://packages.debian.org/bookworm/libxml2)
 *   [locales](https://packages.debian.org/bookworm/locales)
 *   [ssl-cert](https://packages.debian.org/bookworm/ssl-cert)
@@ -392,4 +398,5 @@ Copyright (c) 2020-2024 The PGXN Maintainers. Distributed under the
   [LICENSE]: LICENSE
   [the docs]: https://pgxn.github.io/pgxnclient/
   [pgTAP]: https://pgtap.org/
+  [PostgreSQL TAP]: https://www.postgresql.org/docs/current/regress-tap.html
   [TAP]: https://testanything.org "Test Anything Protocol"
