@@ -6,7 +6,7 @@ RUN chmod +x /usr/local/bin/apt.postgresql.org.sh \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
         build-essential clang llvm llvm-dev llvm-runtime cmake \
-        pgxnclient libtap-parser-sourcehandler-pgtap-perl sudo gosu \
+        pgxnclient libtap-parser-sourcehandler-pgtap-perl libipc-run-perl sudo gosu \
         ca-certificates gnupg2 zip unzip libarchive-tools curl git libicu-dev libxml2 locales ssl-cert \
     && apt-get -y purge postgresql-client-common \
     && apt-get clean \
