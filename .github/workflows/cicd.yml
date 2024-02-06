@@ -37,9 +37,13 @@ jobs:
         env: { NO_CLUSTER: true }
         run: |-
           docker run -w /repo --rm pgxn-tools-test pg-start ${{ matrix.pg }}
-          if [ -d /var/lib/postgresql/16/test ]; then
-            echo "ERROR: /var/lib/postgresql/16/test should not exist!"
-            exit 1;
+          if [ $? -ne 0 ]; then
+            echo "ERROR: error returned from script"
+            exit 1
+          fi
+          if [ -d /var/lib/postgresql/${{ matrix.pg }}/test ]; then
+            echo "ERROR: /var/lib/postgresql/${{ matrix.pg }}/test should not exist!"
+            exit 1
           fi
 
   publish:
