@@ -32,6 +32,15 @@ jobs:
         run: "docker run -w /repo --rm --volume \"$(pwd)/test:/repo\" -e AS_USER=worker pgxn-tools-test ./runtest.sh ${{ matrix.pg }} zip"
       - name: Test Zip with zip excluded file
         run: "docker run -w /repo --rm --volume \"$(pwd)/test:/repo\" pgxn-tools-test ./runtest.sh ${{ matrix.pg }} zip yes"
+      # Test NO_CLUSTER
+      - name: Test NO_CLUSTER
+        env: { NO_CLUSTER: true }
+        run: |-
+          docker run -w /repo --rm pgxn-tools-test pg-start ${{ matrix.pg }}
+          if [ -d /var/lib/postgresql/16/test ]; then
+            echo "ERROR: /var/lib/postgresql/16/test should not exist!"
+            exit 1;
+          fi
 
   publish:
     # Publish for a tag starting with v.

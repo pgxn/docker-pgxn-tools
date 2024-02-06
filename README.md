@@ -197,6 +197,31 @@ modified the `postgresql.conf` file), use `pg_ctlcluster` like so:
 pg_ctlcluster 12 test restart
 ```
 
+For finer control over running the PostgreSQL cluster, set the `NO_CLUSTER`
+environment variable to prevent `pg-start` from creating and starting a cluster:
+
+```sh
+env NO_CLUSTER=1 pg-start 14
+```
+
+This will simply install Postgres 14; to start it, use the [`pg_createcluster`]
+command, like so:
+
+```sh
+pg_createcluster --start 14 my14 -p 5414 -- -A trust
+```
+
+This starts a cluster named "my14" on port 5414. This technique is useful to run
+multiple clusters, even different versions at once; just given them unique names and
+ports to run on:
+
+```sh
+env NO_CLUSTER=1 pg-start 15
+pg_createcluster --start 15 my15 -p 5415 -- -A trust
+env NO_CLUSTER=1 pg-start 16
+pg_createcluster --start 16 my16 -p 5416 -- -A trust
+```
+
 ### [`pg-build-test`]
 
 ``` sh
@@ -411,6 +436,7 @@ Copyright (c) 2020-2024 The PGXN Maintainers. Distributed under the
   [upload-release-asset]: https://github.com/actions/upload-release-asset
   [git-archive-all]: https://github.com/Kentzo/git-archive-all
   [PGXN]: https://pgxn.org/ "The PostgreSQL Extension Network"
+  [`pg_createcluster`]: https://manpages.debian.org/buster/postgresql-common/pg_createcluster.1.en.html
   [David E. Wheeler]: https://justatheory.com/
   [PostgreSQL License]: https://opensource.org/licenses/PostgreSQL
   [LICENSE]: LICENSE

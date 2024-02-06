@@ -32,10 +32,10 @@ if [ -z ${PGXN_PASSWORD+x} ]; then
 fi
 
 # Release it!
-echo Releasing $zipfile...
+echo "Releasing $zipfile..."
 status=$(curl --user "${PGXN_USERNAME}:${PGXN_PASSWORD}" -F 'submit=Release It!' -F "archive=@${zipfile}" -H 'X-Requested-With: XMLHttpRequest' --silent --output /dev/stderr --write-out "%{http_code}" https://manager.pgxn.org/upload)
 echo
-if test $status -ne 200; then
+if test "$status" -ne 200; then
     echo 'ERROR: Release failed'
     exit 2
 fi

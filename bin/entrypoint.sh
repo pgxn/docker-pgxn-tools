@@ -6,9 +6,8 @@ set -e
 [ -z "$AS_USER" ] && exec "$@"
 
 USER_ID=${LOCAL_UID:-1001}
-USERNAME=worker
 
 echo "Starting with UID $USER_ID"
-useradd --system --create-home --shell /bin/bash -g root -G sudo -u $USER_ID "$AS_USER"
+useradd --system --create-home --shell /bin/bash -g root -G sudo -u "$USER_ID" "$AS_USER"
 export HOME="/home/$AS_USER"
 exec /usr/sbin/gosu "$AS_USER" "$@"

@@ -10,7 +10,7 @@ prefix=widget-1.0.0
 zipfile="${prefix}.zip"
 extrafile=extra.txt
 
-cd $(dirname "$0")
+cd "$(dirname "$0")"
 
 if [ -n "$testopts" ]; then
     # Use GIT_BUNDLE_OPTS to add an untracked file to the Git archive or
@@ -20,7 +20,7 @@ if [ -n "$testopts" ]; then
     export ZIP_BUNDLE_OPTS="--exclude */$extrafile"
 fi
 
-pg-start $pgversion
+pg-start "$pgversion"
 pg-build-test
 pgxn-bundle
 make clean
@@ -39,6 +39,7 @@ if [ "$expectutil" = "git" ]; then
     # Make sure runtest.sh was omitted thanks to .gitattributes.
     if [ -f "$prefix/runtests.sh" ]; then
         echo 'ERROR:  Zip file contains runtests.sh and should not'
+        # shellcheck disable=SC2016
         echo '        Did pgxn-bundle use `zip` instead of `git archive`?'
         exit 2
     fi
@@ -51,6 +52,7 @@ else
     # Make sure runtest.sh is included in the zip file.
     if [ ! -f "$prefix/runtest.sh" ]; then
         echo 'ERROR:  Zip file contains runtests.sh and should not'
+        # shellcheck disable=SC2016
         echo '        Did pgxn-bundle use `git archive` instead of `zip`?'
         exit 2
     fi
