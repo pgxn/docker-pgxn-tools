@@ -19,4 +19,7 @@ if [ $# -gt 1 ]; then
     sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y "${@:2}"
 fi
 
-[ -z ${NO_CLUSTER+x} ] && sudo pg_createcluster --start "$PGVERSION" test -p "${PGPORT:-5432}" -- -A trust
+if [ -z ${NO_CLUSTER+x} ]; then
+    sudo pg_createcluster --start "$PGVERSION" test -p "${PGPORT:-5432}" -- -A trust
+fi
+
