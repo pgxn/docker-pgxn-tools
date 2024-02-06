@@ -15,11 +15,14 @@ PGVERSION=${1:-}
 
 set -x
 sudo apt.postgresql.org.sh -i -v "$PGVERSION"
+set +x
 if [ $# -gt 1 ]; then
+set -x
     sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y "${@:2}"
 fi
 
+set +x
 if [ -z ${NO_CLUSTER+x} ]; then
+    set -x
     sudo pg_createcluster --start "$PGVERSION" test -p "${PGPORT:-5432}" -- -A trust
 fi
-
