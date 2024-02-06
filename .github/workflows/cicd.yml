@@ -35,16 +35,7 @@ jobs:
       # Test NO_CLUSTER
       - name: Test NO_CLUSTER
         env: { NO_CLUSTER: true }
-        run: |-
-          docker run -w /repo --rm pgxn-tools-test pg-start ${{ matrix.pg }}
-          if [ $? -ne 0 ]; then
-            echo "ERROR: error returned from script"
-            exit 1
-          fi
-          if [ -d /var/lib/postgresql/${{ matrix.pg }}/test ]; then
-            echo "ERROR: /var/lib/postgresql/${{ matrix.pg }}/test should not exist!"
-            exit 1
-          fi
+        run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" pgxn-tools-test ./test/no_cluster_test.sh ${{ matrix.pg }}"
 
   publish:
     # Publish for a tag starting with v.
