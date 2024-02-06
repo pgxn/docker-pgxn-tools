@@ -34,8 +34,7 @@ jobs:
         run: "docker run -w /repo --rm --volume \"$(pwd)/test:/repo\" pgxn-tools-test ./runtest.sh ${{ matrix.pg }} zip yes"
       # Test NO_CLUSTER
       - name: Test NO_CLUSTER
-        env: { NO_CLUSTER: true }
-        run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" pgxn-tools-test ./test/no_cluster_test.sh ${{ matrix.pg }}"
+        run: "docker run -w /repo -e NO_CLUSTER=1 --rm --volume \"$(pwd):/repo\" pgxn-tools-test ./test/no_cluster_test.sh ${{ matrix.pg }}"
 
   publish:
     # Publish for a tag starting with v.
