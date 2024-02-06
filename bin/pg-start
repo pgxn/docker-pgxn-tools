@@ -26,3 +26,4 @@ if [ -z ${NO_CLUSTER+x} ]; then
     set -x
     sudo pg_createcluster --start "$PGVERSION" test -p "${PGPORT:-5432}" -- -A trust
 fi
+set -x
