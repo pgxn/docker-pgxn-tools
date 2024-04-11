@@ -1,0 +1,79 @@
+#!/usr/bin/env perl
+
+use v5.30;
+use strict;
+use warnings;
+use utf8;
+use TOML::Parser;
+use IPC::Run qw(run);
+
+# Parse Cargo.toml.
+my $file = 'Cargo.toml';
+die "No $file file\n" unless -e $file;
+my $cfg = TOML::Parser->new->parse_file($file);
+
+# Look for pgrx.
+my $pgrxv = $cfg->{dependencies}{pgrx} || die "pgrx not found in $file\n";
+$pgrxv =~ s/^=//;
+
+# Find pg_config.
+my $pg_config = $ENV{PG_CONFIG} || do {
+    run [qw(which pg_config)], \my $in, \my $out
+        or die "pg_config not found; did you forget to run pg-start?\n";
+    chomp $out;
+    $out;
+};
+say "### Using $pg_config";
+
+# Determine the Postgres version.
+my $pgv = $ENV{PG_VERSION} || do {
+    run [$pg_config, '--version'], \my $in, \my $out or exit $? >> 8;
+    $out =~ /(\d+)/ or die "No version found in $pg_config --version output:\n$out";
+    $1;
+};
+say "### Using PostgreSQL $pgv";
+
+# Install pgrx.
+say "### Installing pgrx $pgrxv";
+run [qw(cargo install --locked cargo-pgrx --version), $pgrxv] or exit $? >> 8;
+
+# Initialize pgrx for the Postgres version.
+say "### Initializing pgrx $pgrxv for Postgres $pgv";
+run [qw(cargo pgrx init), "--pg$pgv=$pg_config"] or exit $? >> 8;
+
+# Build the package.
+say "### Building $cfg->{package}{name}";
+run [qw(cargo pgrx package --test --pg-config), $pg_config] or exit $? >> 8;
+
+# Run the rust tests.
+say "### Testing $cfg->{package}{name}";
+run [
+    qw(cargo test --all --no-default-features --features),
+    "pg$pgv pg_test", qw(-- --nocapture),
+] or die "$?\n";
+
+# Exit unless there's a Makefile.
+$file = 'Makefile';
+exit unless -e $file;
+
+# Look for signs of installcheck in the Makefile.
+open my $fh, '<:raw', $file or die "Cannot open $file: $!\n";
+my $regress;
+while (<$fh>) {
+    next unless /^REGRESS\s*=/ || /^installcheck:/;
+    $regress = 1;
+    last;
+}
+close $fh;
+
+unless ($regress) {
+    say "### No installcheck target detected";
+    exit;
+}
+
+# Install and run installcheck.
+say "### Installing $cfg->{package}{name}";
+run [qw(cargo pgrx install --test --pg-config), $pg_config] or exit $? >> 8;
+
+say "### Running installcheck for $cfg->{package}{name}";
+run [qw(make installcheck PGUSER=postgres)];
