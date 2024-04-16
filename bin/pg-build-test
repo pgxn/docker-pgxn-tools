@@ -12,5 +12,5 @@ make all
 sudo make install
 status=0
 make installcheck PGUSER=postgres || status=$?
-if test -f regression.diffs; then cat regression.diffs; fi
+[ $status != 0 ] && find . -name regression.diffs -exec cat {} +
 exit $status

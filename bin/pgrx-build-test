@@ -16,6 +16,13 @@ my $cfg = TOML::Parser->new->parse_file($file);
 my $pgrxv = $cfg->{dependencies}{pgrx} || die "pgrx not found in $file\n";
 $pgrxv =~ s/^=//;
 
+# Make sure we support this version of pgrx.
+my @v = split /[.]/ => $pgrxv, 3;
+die "Invalid pgrx version '$pgrxv'\n" unless @v == 3;
+$v[2] =~ s/\D+//g;
+die "$0 requires pgrx v0.11.4 or higher\n"
+    unless $v[0] > 0 || $v[1] > 11 || ($v[1] == 11 && $v[2] > 3);
+
 # Find pg_config.
 my $pg_config = $ENV{PG_CONFIG} || do {
     run [qw(which pg_config)], \my $in, \my $out
@@ -26,7 +33,7 @@ my $pg_config = $ENV{PG_CONFIG} || do {
 say "### Using $pg_config";
 
 # Determine the Postgres version.
-my $pgv = $ENV{PG_VERSION} || do {
+my $pgv = $ENV{PGVERSION} || do {
     run [$pg_config, '--version'], \my $in, \my $out or exit $? >> 8;
     $out =~ /(\d+)/ or die "No version found in $pg_config --version output:\n$out";
     $1;
@@ -50,7 +57,7 @@ say "### Testing $cfg->{package}{name}";
 run [
     qw(cargo test --all --no-default-features --features),
     "pg$pgv pg_test", qw(-- --nocapture),
-] or die "$?\n";
+] or exit $? >> 8;
 
 # Exit unless there's a Makefile.
 $file = 'Makefile';
@@ -65,15 +72,16 @@ while (<$fh>) {
     last;
 }
 close $fh;
-
-unless ($regress) {
-    say "### No installcheck target detected";
-    exit;
-}
+exit unless $regress;
 
 # Install and run installcheck.
 say "### Installing $cfg->{package}{name}";
 run [qw(cargo pgrx install --test --pg-config), $pg_config] or exit $? >> 8;
 
 say "### Running installcheck for $cfg->{package}{name}";
-run [qw(make installcheck PGUSER=postgres)];
+run [qw(make installcheck PGUSER=postgres)] or do {
+    $exit_code = $? >> 8;
+    # Try to find regression.diffs.
+    run[qw(find . -name regression.diffs -exec cat {} +)];
+    exit $exit_code;
+};

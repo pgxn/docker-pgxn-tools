@@ -11,13 +11,13 @@ releases to PGXN. The image contains these utilities:
 *   [`pg_prove`]: Runs and harnessing pgTAP tests
 *   [`pg-start`] Pass a PostgreSQL major version to install and starts a PostgreSQL cluster
 *   [`pg-build-test`]: Builds and tests an extension in the current directory
+*   [`pgrx-build-test`]: Builds and tests a [pgrx] extension in the current directory
 *   [`pgxn-bundle`]: Validates the PGXN META.json file and bundles up a release
 *   [`pgxn-release`]: Release to PGXN
 
 The image is based on the Debian Bookworm Slim image, and uses the
 [PostgreSQL Apt] repository to install PostgreSQL, supporting versions
 [back to 8.2], as well as the latest prerelease version.
-
 
 Running a Container
 -------------------
@@ -37,7 +37,8 @@ directory.
 
 By default the container runs as `root`. To run as an unprivileged user, pass
 the `AS_USER` environment variable and a user with that name will be created
-with `sudo` privileges (already used by `pg-start` and `pg-build-test`):
+with `sudo` privileges (already used by `pg-start`, `pg-build-test` and
+`pgrx-build-test`):
 
 ``` sh
 docker run -it --rm -w /repo -e AS_USER=worker \
@@ -55,10 +56,10 @@ docker run -it --rm -w /repo -e AS_USER=worker -e LOCAL_UID=$(id -u) \
     sh -c 'sudo pg-start 14 && pg-build-test'
 ```
 
-### Postgres User
+### Sudo-Enabled Users
 
-The `postgres` user, created by `pg-start`, also has full permission to use
-`sudo` without a password prompt.
+The `nobody` user, included in the image, and the `postgres` user, created by
+`pg-start`, also have full permission to use `sudo` without a password prompt.
 
 GitHub Workflow
 ---------------
@@ -83,7 +84,7 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v4
       - name: Test on PostgreSQL ${{ matrix.pg }}
-        run: pg-build-test
+        run: pg-build-test # or pgrx-build-test for a pgrx extension
 ```
 
 This example demonstrates automatic publishing of a release whenever a tag is
@@ -248,6 +249,27 @@ alternate `$PROFILE` environment variable to override it:
 export PROFILE=--Wall
 pg-build-test
 ```
+
+### [`pgrx-build-test`]
+
+``` sh
+pgrx-build-test
+```
+
+Build, install, and test a PostgreSQL [pgrx] extension. It reads the required
+version of [pgrx] from the `Cargo.toml` file. Effectively the equivalent of:
+
+``` sh
+cargo install --locked cargo-pgrx --version ${PGRX_VERSION}
+make cargo pgrx init --pg${PG_VERSION}=$(which pg_config)
+cargo pgrx package --test --pg-config $(which pg_config)
+cargo test --all --no-default-features --features "pg$pgv pg_test", -- --nocapture
+```
+
+But a bit more, to ensure that the tests run as the `postgres` user. It will
+also run  `cargo pgrx install` and `make installcheck` if it finds a
+`Makefile` that appears to define it, and emit the contents of the
+`regression.diffs` file if `installcheck` fails.
 
 ### [`pgxn-bundle`]
 
@@ -444,3 +466,4 @@ Copyright (c) 2020-2024 The PGXN Maintainers. Distributed under the
   [pgTAP]: https://pgtap.org/
   [PostgreSQL TAP]: https://www.postgresql.org/docs/current/regress-tap.html
   [TAP]: https://testanything.org "Test Anything Protocol"
+  [pgrx]: https://github.com/pgcentralfoundation/pgrx
