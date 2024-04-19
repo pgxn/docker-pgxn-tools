@@ -37,7 +37,7 @@ directory.
 
 By default the container runs as `root`. To run as an unprivileged user, pass
 the `AS_USER` environment variable and a user with that name will be created
-with `sudo` privileges (already used by `pg-start`, `pg-build-test` and
+with `sudo` privileges (already used by `pg-start`, `pg-build-test`, and
 `pgrx-build-test`):
 
 ``` sh
@@ -257,19 +257,26 @@ pgrx-build-test
 ```
 
 Build, install, and test a PostgreSQL [pgrx] extension. It reads the required
-version of [pgrx] from the `Cargo.toml` file. Effectively the equivalent of:
+version of [pgrx] from the `Cargo.toml` file, which must be v0.11.4 or higher.
+Effectively the equivalent of:
 
 ``` sh
 cargo install --locked cargo-pgrx --version ${PGRX_VERSION}
 make cargo pgrx init --pg${PG_VERSION}=$(which pg_config)
 cargo pgrx package --test --pg-config $(which pg_config)
-cargo test --all --no-default-features --features "pg$pgv pg_test", -- --nocapture
+cargo pgrx test --runas postgres pg$pgv
+cargo pgrx install --test --pg-config $(which pg_config)
 ```
 
-But a bit more, to ensure that the tests run as the `postgres` user. It will
-also run  `cargo pgrx install` and `make installcheck` if it finds a
-`Makefile` that appears to define it, and emit the contents of the
-`regression.diffs` file if `installcheck` fails.
+But a bit more, to ensure that the tests run as the `postgres` user and emits
+all output. It will also run `make installcheck` if it finds a `Makefile` that
+appears to define the `installcheck` target, and emit the contents of the
+`regression.diffs` file if it fails.
+
+**Note:** Since `pgrx` uses `sudo` to start the cluster as the `postgres`
+user, so some environment variables may not be present while tests run. If
+your Rust code reads environment variables it should guard against
+`NotPresent` errors to handle unexpectedly missing environment variables.
 
 ### [`pgxn-bundle`]
 

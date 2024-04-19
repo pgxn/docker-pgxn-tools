@@ -25,7 +25,7 @@ die "$0 requires pgrx v0.11.4 or higher\n"
 
 # Find pg_config.
 my $pg_config = $ENV{PG_CONFIG} || do {
-    run [qw(which pg_config)], \my $in, \my $out
+    run [qw(which pg_config)], \undef, \my $out
         or die "pg_config not found; did you forget to run pg-start?\n";
     chomp $out;
     $out;
@@ -34,7 +34,7 @@ say "### Using $pg_config";
 
 # Determine the Postgres version.
 my $pgv = $ENV{PGVERSION} || do {
-    run [$pg_config, '--version'], \my $in, \my $out or exit $? >> 8;
+    run [$pg_config, '--version'], \undef, \my $out or exit $? >> 8;
     $out =~ /(\d+)/ or die "No version found in $pg_config --version output:\n$out";
     $1;
 };
@@ -52,12 +52,21 @@ run [qw(cargo pgrx init), "--pg$pgv=$pg_config"] or exit $? >> 8;
 say "### Building $cfg->{package}{name}";
 run [qw(cargo pgrx package --test --pg-config), $pg_config] or exit $? >> 8;
 
-# Run the rust tests.
+# Install the extension.
+# (Must come before test: https://github.com/pgcentralfoundation/pgrx/issues/1670)
+say "### Installing $cfg->{package}{name}";
+run [qw(cargo pgrx install --test --pg-config), $pg_config] or exit $? >> 8;
+
+# Run the tests as the postgres user.
 say "### Testing $cfg->{package}{name}";
-run [
-    qw(cargo test --all --no-default-features --features),
-    "pg$pgv pg_test", qw(-- --nocapture),
-] or exit $? >> 8;
+my $res = run [
+    qw(cargo pgrx test --runas postgres --pgdata /var/lib/postgresql/pgrx),
+    "pg$pgv",
+]; #  or exit $? >> 8;
+
+# https://github.com/pgcentralfoundation/pgrx/issues/1671
+run [qw(rm -rf /var/lib/postgresql/pgrx)];
+exit $? >> 8 unless $res;
 
 # Exit unless there's a Makefile.
 $file = 'Makefile';
@@ -74,13 +83,10 @@ while (<$fh>) {
 close $fh;
 exit unless $regress;
 
-# Install and run installcheck.
-say "### Installing $cfg->{package}{name}";
-run [qw(cargo pgrx install --test --pg-config), $pg_config] or exit $? >> 8;
-
+# Run installcheck.
 say "### Running installcheck for $cfg->{package}{name}";
 run [qw(make installcheck PGUSER=postgres)] or do {
-    $exit_code = $? >> 8;
+    my $exit_code = $? >> 8;
     # Try to find regression.diffs.
     run[qw(find . -name regression.diffs -exec cat {} +)];
     exit $exit_code;
