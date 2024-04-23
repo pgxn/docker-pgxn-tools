@@ -64,10 +64,12 @@ docker run -it --rm -w /repo -e AS_USER=worker -e LOCAL_UID=$(id -u) \
 The `nobody` user, included in the image, and the `postgres` user, created by
 `pg-start`, also have full permission to use `sudo` without a password prompt.
 
-GitHub Workflow
----------------
+GitHub Workflows
+----------------
 
-Here's a sample [GitHub Workflow] to run tests on multiple versions of
+### Test PGXS Extensions
+
+Here's a sample [GitHub Workflow] to run [PGXS] tests on multiple versions of
 PostgreSQL for every push and pull request:
 
 ``` yaml
@@ -89,6 +91,35 @@ jobs:
       - name: Test on PostgreSQL ${{ matrix.pg }}
         run: pg-build-test # or pgrx-build-test
 ```
+
+### Test pgrx Extensions
+
+To run [pgrx] tests, instead, add [Swatinem/rust-cache@v2] (to cache
+dependencies for shorter run times) and use pgrx-build-test instead:
+
+``` yaml
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    strategy:
+      matrix:
+        pg: [16, 15, 14, 13, 12, 11]
+    name: 🐘 PostgreSQL ${{ matrix.pg }}
+    runs-on: ubuntu-latest
+    container: pgxn/pgxn-tools
+    steps:
+      - name: Start PostgreSQL ${{ matrix.pg }}
+        run: pg-start ${{ matrix.pg }}
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Setup Rust Cache
+        uses: Swatinem/rust-cache@v2
+      - name: Test on PostgreSQL ${{ matrix.pg }}
+        run: pgrx-build-test
+```
+
+### Release on PGXN and GitHub
 
 This example demonstrates automatic publishing of a release whenever a tag is
 pushed matching `v*`. It publishes both to GitHub (using the [create-release]
@@ -498,3 +529,4 @@ Copyright (c) 2020-2024 The PGXN Maintainers. Distributed under the
   [pgrx]: https://github.com/pgcentralfoundation/pgrx
   [PGXS]: https://www.postgresql.org/docs/current/extend-pgxs.html
   [components]: https://rust-lang.github.io/rustup/concepts/components.html
+  [Swatinem/rust-cache@v2]: https://github.com/Swatinem/rust-cache
