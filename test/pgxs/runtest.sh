@@ -38,7 +38,7 @@ unzip "$zipfile"
 if [ "$expectutil" = "git" ]; then
     # Make sure runtest.sh was omitted thanks to .gitattributes.
     if [ -f "$prefix/runtests.sh" ]; then
-        echo 'ERROR:  Zip file contains runtests.sh and should not'
+        echo 'ERROR:  Zip file contains runtests.sh but should not'
         # shellcheck disable=SC2016
         echo '        Did pgxn-bundle use `zip` instead of `git archive`?'
         exit 2
@@ -51,7 +51,7 @@ if [ "$expectutil" = "git" ]; then
 else
     # Make sure runtest.sh is included in the zip file.
     if [ ! -f "$prefix/runtest.sh" ]; then
-        echo 'ERROR:  Zip file contains runtests.sh and should not'
+        echo 'ERROR:  Zip file does not contain runtests.sh but should'
         # shellcheck disable=SC2016
         echo '        Did pgxn-bundle use `git archive` instead of `zip`?'
         exit 2

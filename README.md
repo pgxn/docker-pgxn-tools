@@ -9,8 +9,8 @@ releases to PGXN. The image contains these utilities:
 
 *   [`pgxn`][cli]: The PGXN command-line client
 *   [`pg_prove`]: Runs and harnessing pgTAP tests
-*   [`pg-start`] Pass a PostgreSQL major version to install and starts a PostgreSQL cluster
-*   [`pg-build-test`]: Builds and tests an extension in the current directory
+*   [`pg-start`] Installs a major version of PostgreSQL and starts a cluster
+*   [`pg-build-test`]: Builds and tests a [PGXS] extension in the current directory
 *   [`pgrx-build-test`]: Builds and tests a [pgrx] extension in the current directory
 *   [`pgxn-bundle`]: Validates the PGXN META.json file and bundles up a release
 *   [`pgxn-release`]: Release to PGXN
@@ -35,10 +35,13 @@ directory.
 
 ### Unprivileged User
 
+**NOTE:** GitHub workflow container jobs must be run as root. The options for
+unprivileged users in this section will not work in that context. See
+[Unprivileged User Workflow](#unprivileged-user-workflow) for details.
+
 By default the container runs as `root`. To run as an unprivileged user, pass
 the `AS_USER` environment variable and a user with that name will be created
-with `sudo` privileges (already used by `pg-start`, `pg-build-test`, and
-`pgrx-build-test`):
+with `sudo` privileges (already used by `pg-start` and `pg-build-test`):
 
 ``` sh
 docker run -it --rm -w /repo -e AS_USER=worker \
@@ -56,7 +59,7 @@ docker run -it --rm -w /repo -e AS_USER=worker -e LOCAL_UID=$(id -u) \
     sh -c 'sudo pg-start 14 && pg-build-test'
 ```
 
-### Sudo-Enabled Users
+#### Included Users
 
 The `nobody` user, included in the image, and the `postgres` user, created by
 `pg-start`, also have full permission to use `sudo` without a password prompt.
@@ -74,7 +77,7 @@ jobs:
   test:
     strategy:
       matrix:
-        pg: [16, 15, 14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4, 8.3, 8.2]
+        pg: [17, 16, 15, 14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, 9.0, 8.4, 8.3, 8.2]
     name: 🐘 PostgreSQL ${{ matrix.pg }}
     runs-on: ubuntu-latest
     container: pgxn/pgxn-tools
@@ -84,7 +87,7 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v4
       - name: Test on PostgreSQL ${{ matrix.pg }}
-        run: pg-build-test # or pgrx-build-test for a pgrx extension
+        run: pg-build-test # or pgrx-build-test
 ```
 
 This example demonstrates automatic publishing of a release whenever a tag is
@@ -139,10 +142,10 @@ jobs:
 
 ### Unprivileged User Workflow
 
-GitHub workflows [require the root user] to work with the workspace. To perform
-tasks as an unprivileged user, first set things up as the root user, then use
-[gosu] to execute a command as the `postgres` (can still run `sudo`) or `nobody`
-(no privileges at all) user. For example:
+GitHub workflows [require the root user] to work with the workspace. To
+perform tasks as an unprivileged user, first set things up as the root user,
+then use [gosu] to execute a command as the `postgres` (can run `sudo`) or
+`nobody` (no privileges at all) user. For example:
 
 ``` yaml
     container: pgxn/pgxn-tools
@@ -157,6 +160,21 @@ The checkout action, `pg-start`, and `chown` commands must run as `root`. Then,
 with the current directory's files all owned the newly-created `postgres` user,
 the last `run` commands executes `pg-build-test` as `postgres`, with the
 necessary permissions to write files to the workspace directory.
+
+Alternatively, run the Docker image directly and set `AS_USER` to the desired
+username and pass the GitHub worker UID via the `LOCAL_UID` variable:
+
+``` yaml
+    steps:
+      - uses: actions/checkout@v4
+      - run: >-
+        docker run -w /repo --rm --volume "$(pwd):/repo"
+               -e AS_USER=pgxn_worker -e LOCAL_UID=$(id -u)
+               pgxn/pgxn-tools pg-start && pg-build-test
+```
+
+This allows the user in the container to run a as the same UID as the host
+user and therefore have access to all the mounted files owned by that user.
 
 Tools
 -----
@@ -229,8 +247,8 @@ pg_createcluster --start 16 my16 -p 5416 -- -A trust
 pg-build-test
 ```
 
-Simply builds, installs, and tests a PostgreSQL extension or other code in the
-current directory. Effectively the equivalent of:
+Simply builds, installs, and tests a [PGXS] PostgreSQL extension or other code
+in the current directory. Effectively the equivalent of:
 
 ``` sh
 make
@@ -256,9 +274,9 @@ pg-build-test
 pgrx-build-test
 ```
 
-Build, install, and test a PostgreSQL [pgrx] extension. It reads the required
-version of [pgrx] from the `Cargo.toml` file, which must be v0.11.4 or higher.
-Effectively the equivalent of:
+Builds, installs, and tests a PostgreSQL [pgrx] extension. It reads the
+required version of [pgrx] from the `Cargo.toml` file, which must be v0.11.4
+or higher. Effectively the equivalent of:
 
 ``` sh
 cargo install --locked cargo-pgrx --version ${PGRX_VERSION}
@@ -272,11 +290,6 @@ But a bit more, to ensure that the tests run as the `postgres` user and emits
 all output. It will also run `make installcheck` if it finds a `Makefile` that
 appears to define the `installcheck` target, and emit the contents of the
 `regression.diffs` file if it fails.
-
-**Note:** Since `pgrx` uses `sudo` to start the cluster as the `postgres`
-user, so some environment variables may not be present while tests run. If
-your Rust code reads environment variables it should guard against
-`NotPresent` errors to handle unexpectedly missing environment variables.
 
 ### [`pgxn-bundle`]
 
@@ -439,6 +452,15 @@ The image includes these packages; pass additional packages to
 *   [ssl-cert](https://packages.debian.org/bookworm/ssl-cert)
 *   [git-archive-all](https://github.com/Kentzo/git-archive-all) (run `git archive-all`)
 
+### Rust Components
+
+The image includes the following Rust [components]; use `rustup component add`
+to add additional components at runtime.
+
+*   [rust minimal]: https://rust-lang.github.io/rustup/concepts/profiles.html
+*   [rustfmt]: https://github.com/rust-lang/rustfmt
+*   [clippy]: https://github.com/rust-lang/rust-clippy
+
 Author
 ------
 
@@ -474,3 +496,5 @@ Copyright (c) 2020-2024 The PGXN Maintainers. Distributed under the
   [PostgreSQL TAP]: https://www.postgresql.org/docs/current/regress-tap.html
   [TAP]: https://testanything.org "Test Anything Protocol"
   [pgrx]: https://github.com/pgcentralfoundation/pgrx
+  [PGXS]: https://www.postgresql.org/docs/current/extend-pgxs.html
+  [components]: https://rust-lang.github.io/rustup/concepts/components.html

@@ -5,41 +5,65 @@ on:
   schedule:
     - cron: '0 14 3 * *' # Monthly at 2pm on the 3rd
 jobs:
-  test:
-    name: 🐘 PostgreSQL ${{ matrix.pg }}
+  pgxs:
+    name: 🐘 PGXS on Postgres ${{ matrix.pg }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pg: [16, 15, 14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, '9.0', 8.4, 8.3, 8.2]
+        pg: [17, 16, 15, 14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2, 9.1, '9.0', 8.4, 8.3, 8.2]
     steps:
       - uses: actions/checkout@v4
       - name: Build Image
         run: docker build -t pgxn-tools-test .
-      # Test with Git repo
-      - name: Test Git as root
-        run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" pgxn-tools-test ./test/runtest.sh ${{ matrix.pg }} git"
-      - name: Test Git as non-root
-        run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" -e AS_USER=worker pgxn-tools-test ./test/runtest.sh ${{ matrix.pg }} git"
-      - name: Test Git with extra file
-        run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" pgxn-tools-test ./test/runtest.sh ${{ matrix.pg }} git yes"
-      - name: Test Git with archive-all
+      # First test system UID, otherwise it can't use files touched by root.
+      - name: Test with system UID
+        run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" -e AS_USER=pgxn_worker -e LOCAL_UID=$(id -u) pgxn-tools-test ./test/pgxs/runtest.sh ${{ matrix.pg }}"
+      - name: Test as root
+        run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" pgxn-tools-test ./test/pgxs/runtest.sh ${{ matrix.pg }}"
+
+  pgrx:
+    name: 🦀 pgrx on Postgres ${{ matrix.pg }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pg: [16, 15, 14, 13, 12, 11]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Image
+        run: docker build -t pgxn-tools-test .
+      # First test system UID, otherwise it can't use files touched by root.
+      - name: Test with system UID
+        run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" -e AS_USER=pgxn_worker -e LOCAL_UID=$(id -u) pgxn-tools-test ./test/pgrx/runtest.sh ${{ matrix.pg }}"
+      - name: Test as root
+        run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" pgxn-tools-test ./test/pgrx/runtest.sh ${{ matrix.pg }}"
+
+  bundle:
+    name: ${{ matrix.util.icon }} Bundle with ${{ matrix.util.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        util:
+          - { icon: 🏷️, name: git, dir: "", run: ./test/pgxs }
+          - { icon: 🤐, name: zip, dir: /test, run: ./pgxs }
+    env: { PG_VERSION: 16 }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Image
+        run: docker build -t pgxn-tools-test .
+      - name: Test ${{ matrix.util.name }}
+        run: "docker run -w /repo --rm --volume \"$(pwd)${{ matrix.util.dir }}:/repo\" pgxn-tools-test ${{ matrix.util.run }}/runtest.sh ${{ env.PG_VERSION }} ${{ matrix.util[1] }}"
+      - name: Test ${{ matrix.util.name }} with extra file
+        run: "docker run -w /repo --rm --volume \"$(pwd)${{ matrix.util.dir }}:/repo\" pgxn-tools-test ${{ matrix.util.run }}/runtest.sh ${{ env.PG_VERSION }} ${{ matrix.util[1] }} yes"
+      - name: Test ${{ matrix.util.name }} with archive-all
         env: { GIT_ARCHIVE_CMD: archive-all }
-        run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" pgxn-tools-test ./test/runtest.sh ${{ matrix.pg }} git"
-      # Test without Git repo
-      - name: Test Zip as root
-        run: "docker run -w /repo --rm --volume \"$(pwd)/test:/repo\" pgxn-tools-test ./runtest.sh ${{ matrix.pg }} zip"
-      - name: Test Zip as non-root
-        run: "docker run -w /repo --rm --volume \"$(pwd)/test:/repo\" -e AS_USER=worker pgxn-tools-test ./runtest.sh ${{ matrix.pg }} zip"
-      - name: Test Zip with zip excluded file
-        run: "docker run -w /repo --rm --volume \"$(pwd)/test:/repo\" pgxn-tools-test ./runtest.sh ${{ matrix.pg }} zip yes"
-      # Test NO_CLUSTER
+        run: "docker run -w /repo --rm --volume \"$(pwd)${{ matrix.util.dir }}:/repo\" pgxn-tools-test ${{ matrix.util.run }}/runtest.sh ${{ env.PG_VERSION }} ${{ matrix.util[1] }}"
       - name: Test NO_CLUSTER
-        run: "docker run -w /repo -e NO_CLUSTER=1 --rm --volume \"$(pwd):/repo\" pgxn-tools-test ./test/no_cluster_test.sh ${{ matrix.pg }}"
+        run: "docker run -w /repo -e NO_CLUSTER=1 --rm --volume \"$(pwd)${{ matrix.util.dir }}:/repo\" pgxn-tools-test ${{ matrix.util.run }}/no_cluster_test.sh ${{ env.PG_VERSION }}"
 
   publish:
     # Publish for a tag starting with v.
     name: Push to Docker Hub
-    needs: test
+    needs: [pgxs, pgrx, bundle]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:

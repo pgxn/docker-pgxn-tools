@@ -1,0 +1,6 @@
+SELECT hello_hello();
+ hello_hello  
+--------------
+ Hello, hello
+(1 row)
+

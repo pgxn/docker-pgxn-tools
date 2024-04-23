@@ -55,7 +55,7 @@ run [qw(cargo pgrx package --test --pg-config), $pg_config] or exit $? >> 8;
 # Install the extension.
 # (Must come before test: https://github.com/pgcentralfoundation/pgrx/issues/1670)
 say "### Installing $cfg->{package}{name}";
-run [qw(cargo pgrx install --test --pg-config), $pg_config] or exit $? >> 8;
+run [qw(sudo cargo pgrx install --test --pg-config), $pg_config] or exit $? >> 8;
 
 # Run the tests as the postgres user.
 say "### Testing $cfg->{package}{name}";
