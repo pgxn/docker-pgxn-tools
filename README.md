@@ -89,7 +89,7 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v4
       - name: Test on PostgreSQL ${{ matrix.pg }}
-        run: pg-build-test # or pgrx-build-test
+        run: pg-build-test
 ```
 
 ### Test pgrx Extensions
@@ -505,10 +505,11 @@ Copyright (c) 2020-2024 The PGXN Maintainers. Distributed under the
 
   [cli]: https://github.com/pgxn/pgxnclient
   [`pg_prove`]: https://metacpan.org/pod/pg_prove
-  [`pg-start`]: bin/pg-start
-  [`pg-build-test`]: bin/pg-build-test
-  [`pgxn-bundle`]: bin/pgxn-bundle
-  [`pgxn-release`]: bin/pgxn-release
+  [`pg-start`]: #pg-start
+  [`pg-build-test`]: #pg-build-test
+  [`pgrx-build-test`]: #pgrx-build-test
+  [`pgxn-bundle`]: #pgxn-bundle
+  [`pgxn-release`]: #pgxn-release
   [PostgreSQL Apt]: https://wiki.postgresql.org/wiki/Apt
   [back to 8.2]: http://apt.postgresql.org/pub/repos/apt/dists/bookworm-pgdg/
   [require the root user]: https://docs.github.com/en/actions/creating-actions/dockerfile-support-for-github-actions#user
@@ -521,7 +522,7 @@ Copyright (c) 2020-2024 The PGXN Maintainers. Distributed under the
   [`pg_createcluster`]: https://manpages.debian.org/buster/postgresql-common/pg_createcluster.1.en.html
   [David E. Wheeler]: https://justatheory.com/
   [PostgreSQL License]: https://opensource.org/licenses/PostgreSQL
-  [LICENSE]: LICENSE
+  [LICENSE]: https://github.com/pgxn/docker-pgxn-tools/blob/main/LICENSE
   [the docs]: https://pgxn.github.io/pgxnclient/
   [pgTAP]: https://pgtap.org/
   [PostgreSQL TAP]: https://www.postgresql.org/docs/current/regress-tap.html
