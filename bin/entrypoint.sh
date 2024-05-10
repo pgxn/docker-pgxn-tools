@@ -8,6 +8,6 @@ set -e
 USER_ID=${LOCAL_UID:-1001}
 
 echo "Starting with UID $USER_ID"
-useradd --system --create-home --shell /bin/bash -g root -G sudo -u "$USER_ID" "$AS_USER"
+useradd --create-home --shell /bin/bash -g root -G sudo -u "$USER_ID" "$AS_USER"
 export HOME="/home/$AS_USER"
 exec /usr/sbin/gosu "$AS_USER" "$@"
