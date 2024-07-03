@@ -311,7 +311,7 @@ or higher. Effectively the equivalent of:
 
 ``` sh
 cargo install --locked cargo-pgrx --version ${PGRX_VERSION}
-make cargo pgrx init --pg${PG_VERSION}=$(which pg_config)
+cargo pgrx init --pg${PG_VERSION}=$(which pg_config)
 cargo pgrx package --test --pg-config $(which pg_config)
 cargo pgrx test --runas postgres pg$pgv
 cargo pgrx install --test --pg-config $(which pg_config)
@@ -488,9 +488,9 @@ The image includes these packages; pass additional packages to
 The image includes the following Rust [components]; use `rustup component add`
 to add additional components at runtime.
 
-*   [rust minimal]: https://rust-lang.github.io/rustup/concepts/profiles.html
-*   [rustfmt]: https://github.com/rust-lang/rustfmt
-*   [clippy]: https://github.com/rust-lang/rust-clippy
+*   [rust minimal](https://rust-lang.github.io/rustup/concepts/profiles.html)
+*   [rustfmt](https://github.com/rust-lang/rustfmt)
+*   [clippy](https://github.com/rust-lang/rust-clippy)
 
 Author
 ------
