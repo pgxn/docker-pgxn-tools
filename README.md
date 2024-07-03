@@ -313,7 +313,7 @@ or higher. Effectively the equivalent of:
 cargo install --locked cargo-pgrx --version ${PGRX_VERSION}
 cargo pgrx init --pg${PG_VERSION}=$(which pg_config)
 cargo pgrx package --test --pg-config $(which pg_config)
-cargo pgrx test --runas postgres pg$pgv
+cargo pgrx test --runas postgres pg${PG_VERSION}
 cargo pgrx install --test --pg-config $(which pg_config)
 ```
 
