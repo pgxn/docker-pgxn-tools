@@ -24,6 +24,7 @@ fi
 set +x
 if [ -z ${NO_CLUSTER+x} ]; then
     set -x
-    sudo pg_createcluster --start "$PGVERSION" test -p "${PGPORT:-5432}" -- -A trust
+    # shellcheck disable=SC2086 # ${CREATE_OPTIONS:-} must be unquoted
+    sudo pg_createcluster --start "$PGVERSION" test -p "${PGPORT:-5432}" ${CREATE_OPTIONS:-} -- -A trust
 fi
 set -x

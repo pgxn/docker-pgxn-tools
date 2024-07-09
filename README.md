@@ -227,8 +227,17 @@ authentication enabled. If you need the cluster configured with a specific
 locale (for collation predictability, for example), set the `$LANG` environment
 variable before calling `pg-start`.
 
-If you need to access the `postgresql.conf`, say to add additional configuration,
-you can use the `SHOW config_file` SQL command like so:
+The `pg-start` tool uses [`pg_createcluster`] to create and start the cluster.
+To pass options, use the `$OPTIONS` environment variable. For example, to add
+a GUC to the `postgresql.conf` file, use the `--pgoption` option:
+
+``` sh
+CREATE_OPTIONS="--pgoption max_locks_per_transaction=128" pg-start
+```
+
+If you need to access the `postgresql.conf` after startup, say to add
+additional configuration, you can use the `SHOW config_file` SQL command like
+so:
 
 ``` sh
 psql --no-psqlrc -U postgres -Atqc 'SHOW config_file'
