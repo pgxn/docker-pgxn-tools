@@ -6,7 +6,7 @@ RUN chmod +x /usr/local/bin/apt.postgresql.org.sh \
     # Install apt dependencies
     && apt-get update \
     && apt-get install -y --no-install-recommends \
-        build-essential clang llvm llvm-dev llvm-runtime cmake libtoml-parser-perl \
+        build-essential clang llvm llvm-dev llvm-runtime cmake pkgconf libtoml-parser-perl \
         pgxnclient libtap-parser-sourcehandler-pgtap-perl libipc-run-perl libtest-simple-perl sudo gosu \
         ca-certificates gnupg2 zip unzip libarchive-tools curl git libicu-dev libxml2 locales ssl-cert \
     # Clean out unwanted stuff

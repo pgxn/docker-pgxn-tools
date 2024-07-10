@@ -472,6 +472,7 @@ The image includes these packages; pass additional packages to
 *   [llvm-dev](https://packages.debian.org/bookworm/llvm-dev)
 *   [llvm-runtime](https://packages.debian.org/bookworm/llvm-runtime)
 *   [cmake](https://packages.debian.org/bookworm/cmake)
+*   [pkgconf](https://packages.debian.org/bookworm/pkgconf)
 *   [pgxnclient](https://packages.debian.org/bookworm/pgxnclient)
 *   [libtap-parser-sourcehandler-pgtap-perl](https://packages.debian.org/bookworm/libtap-parser-sourcehandler-pgtap-perl)
 *   [sudo](https://packages.debian.org/bookworm/sudo)
@@ -487,10 +488,12 @@ The image includes these packages; pass additional packages to
 *   [libipc-run-perl](https://packages.debian.org/bookworm/libipc-run-perl)
     (IPC::Run for [PostgreSQL TAP] tests)
 *   [libtest-simple-perl](https://packages.debian.org/bookworm/libtest-simple-perl)
+*   [libtoml-parser-perl](https://packages.debian.org/bookworm/libtoml-parser-perl)
 *   [libxml2](https://packages.debian.org/bookworm/libxml2)
 *   [locales](https://packages.debian.org/bookworm/locales)
 *   [ssl-cert](https://packages.debian.org/bookworm/ssl-cert)
 *   [git-archive-all](https://github.com/Kentzo/git-archive-all) (run `git archive-all`)
+*   [Rust Toolchain](https://www.rust-lang.org/tools/install)
 
 ### Rust Components
 
