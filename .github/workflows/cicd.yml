@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pg: [16, 15, 14, 13, 12, 11]
+        pg: [17, 16, 15, 14, 13, 12]
     steps:
       - uses: actions/checkout@v4
       - name: Build Image
