@@ -312,18 +312,20 @@ pg-build-test
 
 ``` sh
 pgrx-build-test
+pgrx-build-test package_name
 ```
 
 Builds, installs, and tests a PostgreSQL [pgrx] extension. It reads the
 required version of [pgrx] from the `Cargo.toml` file, which must be v0.11.4
-or higher. Effectively the equivalent of:
+or higher. Pass the name of the package to build when using a workspace
+configuration. Effectively the equivalent of:
 
 ``` sh
 cargo install --locked cargo-pgrx --version ${PGRX_VERSION}
 cargo pgrx init --pg${PG_VERSION}=$(which pg_config)
-cargo pgrx package --test --pg-config $(which pg_config)
-cargo pgrx test --runas postgres pg${PG_VERSION}
-cargo pgrx install --test --pg-config $(which pg_config)
+cargo pgrx package --test --package ${PACKAGE} --pg-config $(which pg_config)
+cargo pgrx test --runas postgres --package ${PACKAGE} pg${PG_VERSION}
+cargo pgrx install --test --package ${PACKAGE} --pg-config $(which pg_config)
 ```
 
 But a bit more, to ensure that the tests run as the `postgres` user and emits

@@ -12,8 +12,13 @@ my $file = 'Cargo.toml';
 die "No $file file\n" unless -e $file;
 my $cfg = TOML::Parser->new->parse_file($file);
 
-# Look for pgrx.
-my $pgrxv = $cfg->{dependencies}{pgrx} || die "pgrx not found in $file\n";
+# Look for package.
+my $package = shift || $cfg->{package}{name};
+
+# Look for pgrx version.
+my $pgrxv = $cfg->{dependencies}{pgrx}
+    || $cfg->{workspace}{dependencies}{pgrx}
+    || die "pgrx not found in $file\n";
 $pgrxv =~ s/^=//;
 
 # Make sure we support this version of pgrx.
@@ -49,18 +54,20 @@ say "### Initializing pgrx $pgrxv for Postgres $pgv";
 run [qw(cargo pgrx init), "--pg$pgv=$pg_config"] or exit $? >> 8;
 
 # Build the package.
-say "### Building $cfg->{package}{name}";
-run [qw(cargo pgrx package --test --pg-config), $pg_config] or exit $? >> 8;
+say "### Building $package";
+my @common_args = ('--package', $package, '--pg-config', $pg_config);
+run [qw(cargo pgrx package --test), @common_args] or exit $? >> 8;
 
 # Install the extension.
 # (Must come before test: https://github.com/pgcentralfoundation/pgrx/issues/1670)
-say "### Installing $cfg->{package}{name}";
-run [qw(sudo cargo pgrx install --test --pg-config), $pg_config] or exit $? >> 8;
+say "### Installing $package";
+run [qw(sudo cargo pgrx install --test), @common_args] or exit $? >> 8;
 
 # Run the tests as the postgres user.
-say "### Testing $cfg->{package}{name}";
+say "### Testing $package";
 my $res = run [
-    qw(cargo pgrx test --runas postgres --pgdata /var/lib/postgresql/pgrx),
+    qw(cargo pgrx test --runas postgres --pgdata /var/lib/postgresql/pgrx --package),
+    $package,
     "pg$pgv",
 ]; #  or exit $? >> 8;
 
@@ -84,7 +91,7 @@ close $fh;
 exit unless $regress;
 
 # Run installcheck.
-say "### Running installcheck for $cfg->{package}{name}";
+say "### Running installcheck for $package";
 run [qw(make installcheck PGUSER=postgres)] or do {
     my $exit_code = $? >> 8;
     # Try to find regression.diffs.

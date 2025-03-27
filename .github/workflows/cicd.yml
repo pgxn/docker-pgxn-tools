@@ -19,7 +19,7 @@ jobs:
       - name: Test with system UID
         run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" -e AS_USER=pgxn_worker -e LOCAL_UID=$(id -u) pgxn-tools-test ./test/pgxs/runtest.sh ${{ matrix.pg }}"
       - name: Test as root
-        run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" pgxn-tools-test ./test/pgxs/runtest.sh ${{ matrix.pg }}"
+        run: "docker run -w /repo --rm --volume \"$(pwd):/repo\" pgxn-tools-test ./test/pgxs/runtest.sh ${{ matrix.pg }} hello"
 
   pgrx:
     name: 🦀 pgrx on Postgres ${{ matrix.pg }}

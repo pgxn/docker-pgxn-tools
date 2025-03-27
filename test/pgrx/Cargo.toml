@@ -6,6 +6,10 @@ edition = "2021"
 [lib]
 crate-type = ["cdylib", "lib"]
 
+# https://github.com/pgcentralfoundation/pgrx/issues/1966
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(pgrx_embed)"] }
+
 [features]
 default = ["pg17"]
 pg12 = ["pgrx/pg12", "pgrx-tests/pg12" ]
