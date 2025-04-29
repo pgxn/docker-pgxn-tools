@@ -1,5 +1,5 @@
 comment = 'hello:  Created by pgrx'
 default_version = '@CARGO_VERSION@'
-module_pathname = '$libdir/hello'
+module_pathname = 'hello'
 relocatable = false
 superuser = true

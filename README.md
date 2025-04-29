@@ -122,8 +122,8 @@ jobs:
 ### Release on PGXN and GitHub
 
 This example demonstrates automatic publishing of a release whenever a tag is
-pushed matching `v*`. It publishes both to GitHub (using the [create-release]
-and [upload-release-asset] actions) and to PGXN:
+pushed matching `v*`. It publishes both to GitHub (using the
+[csoftprops/action-gh-release] action) and to PGXN:
 
 ``` yaml
 name: Release
@@ -153,22 +153,14 @@ jobs:
       run: pgxn-release
     - name: Create GitHub Release
       id: release
-      uses: actions/create-release@v1
+      uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        name: "Release ${{ github.ref_name }}"
+        files: ${{ steps.bundle.outputs.bundle }}
         body: |
           Changes in this Release
           - First Change
           - Second Change
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      with:
-        # Reference the upload URL and bundle name from previous steps.
-        upload_url: ${{ steps.release.outputs.upload_url }}
-        asset_path: ./${{ steps.bundle.outputs.bundle }}
-        asset_name: ${{ steps.bundle.outputs.bundle }}
-        asset_content_type: application/zip
 ```
 
 ### Unprivileged User Workflow
@@ -246,7 +238,7 @@ psql --no-psqlrc -U postgres -Atqc 'SHOW config_file'
 For example, to load PL/Perl:
 
 ``` sh
-echo "shared_preload_libraries = '$libdir/plperl'" >> $(psql --no-psqlrc -U postgres -Atqc 'SHOW config_file')
+echo "shared_preload_libraries = 'plperl'" >> $(psql --no-psqlrc -U postgres -Atqc 'SHOW config_file')
 ```
 
 The cluster is named "test", and if you need to restart it (e.g. because you
@@ -514,7 +506,7 @@ Author
 Copyright and License
 ---------------------
 
-Copyright (c) 2020-2024 The PGXN Maintainers. Distributed under the
+Copyright (c) 2020-2025 The PGXN Maintainers. Distributed under the
 [PostgreSQL License] (see [LICENSE]).
 
   [cli]: https://github.com/pgxn/pgxnclient
@@ -529,8 +521,7 @@ Copyright (c) 2020-2024 The PGXN Maintainers. Distributed under the
   [require the root user]: https://docs.github.com/en/actions/creating-actions/dockerfile-support-for-github-actions#user
   [GithHub Workflow]: https://help.github.com/en/actions/configuring-and-managing-workflows
   [gosu]: https://github.com/tianon/gosu
-  [create-release]: https://github.com/actions/create-release
-  [upload-release-asset]: https://github.com/actions/upload-release-asset
+  [softprops/action-gh-release]: https://github.com/softprops/action-gh-release
   [git-archive-all]: https://github.com/Kentzo/git-archive-all
   [PGXN]: https://pgxn.org/ "The PostgreSQL Extension Network"
   [`pg_createcluster`]: https://manpages.debian.org/buster/postgresql-common/pg_createcluster.1.en.html

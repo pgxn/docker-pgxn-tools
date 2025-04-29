@@ -2,9 +2,9 @@
 
 set -eu
 
-# Determinee the release file name.
+# Determine the release file name.
 if [ -z ${1+x} ]; then
-    # Get the extension name and version and assemble the releasee file name.
+    # Get the extension name and version and assemble the release file name.
     DISTNAME=${PGXN_DIST_NAME:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{name}' META.json)}
     VERSION=${PGXN_DIST_VERSION:-$(perl -MJSON=decode_json -E 'say decode_json(join "", <>)->{version}' META.json)}
     zipfile=${DISTNAME}-${VERSION}.zip
