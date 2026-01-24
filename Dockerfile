@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim AS pgxn-config
+FROM debian:trixie-slim AS pgxn-config
 
 ADD https://salsa.debian.org/postgresql/postgresql-common/-/raw/master/pgdg/apt.postgresql.org.sh /usr/local/bin/
 
@@ -36,6 +36,6 @@ RUN chmod +x /usr/local/bin/apt.postgresql.org.sh \
 
 COPY bin/* /usr/local/bin/
 
-ENV LC_ALL=C.UTF-8 LANG=C.UTF-8 CARGO_HOME=/usr/share/cargo PGRX_HOME=/tmp/.pgrx RUSTUP_HOME=/usr/share/rustup PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/share/cargo/bin
+ENV LC_ALL=C.UTF-8 LANG=C.UTF-8 PGUSER=postgres CARGO_HOME=/usr/share/cargo PGRX_HOME=/tmp/.pgrx RUSTUP_HOME=/usr/share/rustup PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/share/cargo/bin
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["/bin/bash"]

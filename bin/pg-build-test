@@ -6,11 +6,13 @@ set -eux
 
 # set PROFILE to a default of -Werror, otherwise use the passed in value. Note
 # the double dash is intentional.
-export PROFILE="${PROFILE:--Werror}"
+PROFILE="${PROFILE:--Werror}"
+MAKEFLAGS="-j $(nproc)"
+export PROFILE MAKEFLAGS
 
 make all
 sudo make install
 status=0
-make installcheck PGUSER=postgres || status=$?
+make installcheck || status=$?
 [ $status != 0 ] && find . -name regression.diffs -exec cat {} +
 exit $status

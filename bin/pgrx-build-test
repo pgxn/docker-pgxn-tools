@@ -92,7 +92,12 @@ exit unless $regress;
 
 # Run installcheck.
 say "### Running installcheck for $package";
-run [qw(make installcheck PGUSER=postgres)] or do {
+my $nproc = do {
+    run [qw(nproc)], \undef, \my $out;
+    chomp $out;
+    $out || 1;
+};
+run [qw(make installcheck -j), $nproc] or do {
     my $exit_code = $? >> 8;
     # Try to find regression.diffs.
     run[qw(find . -name regression.diffs -exec cat {} +)];
